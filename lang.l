@@ -36,39 +36,11 @@
     return TM_DO;
 }
 
-"for" {
-    return TM_FOR;
-}
-
-"break" {
-    return TM_BREAK;
-}
-
-"continue" {
-    return TM_CONTINUE;
-}
-
-"return" {
-    return TM_RETURN;
-}
-
-"func" {
-    return TM_FUNC_DEF;
-}
-
-"proc" {
-    return TM_PROC_DEF;
-}
-
 
 [_A-Za-z][_A-Za-z0-9]* {
     yylval.i = new_str(yytext, yyleng);
     return TM_IDENT;
 }
-
-"," {
-    return TM_COMMA;
-    }
 
 ";" {
     return TM_SEMICOL;
@@ -148,10 +120,6 @@
 
 "!" {
     return TM_NOT;
-    }
-
-"&" {
-    return TM_ADDR_OF;
     }
 
 [ \t\n\r]    { };
