@@ -177,6 +177,7 @@ void print_expr(struct expr * e) {
     printf("ARRAY(%s,", e -> d.ARRAY.name);
     print_expr( e -> d.ARRAY.num);
     printf(")");
+    break;
   case T_BINOP:
     print_binop(e -> d.BINOP.op);
     printf("(");
