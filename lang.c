@@ -39,7 +39,9 @@ struct expr * TArray(char * name, struct expr * num) {
   struct expr * res = new_expr_ptr();
   res -> t = T_ARRAY;
   res -> d.ARRAY.name = name;
-  res -> d.ARRAY.num = num;
+  res -> d.ARRAY.num = new_expr_ptr();
+  res -> d.ARRAY.num->d= num->d;
+  res -> d.ARRAY.num->t= num->t;
   return res;
 }
 
@@ -172,10 +174,9 @@ void print_expr(struct expr * e) {
     printf("VAR(%s)", e -> d.VAR.name);
     break;
   case T_ARRAY:
-    printf("ARRAY(%s)", e -> d.ARRAY.name);
-    printf("[");
+    printf("ARRAY(%s,", e -> d.ARRAY.name);
     print_expr( e -> d.ARRAY.num);
-    printf("]");
+    printf(")");
   case T_BINOP:
     print_binop(e -> d.BINOP.op);
     printf("(");
@@ -199,7 +200,7 @@ void print_cmd(struct cmd * c) {
     printf("DECL(%s)", c -> d.DECL.name);
     break;
   case T_DECL_ARRAY:
-    printf("ARRAY(%s)[%d]", c -> d.DECL_ARRAY.name, c -> d.DECL_ARRAY.size);
+    printf("DECL_ARRAY(%s,%d)", c -> d.DECL_ARRAY.name, c -> d.DECL_ARRAY.size);
     break;
   case T_ASGN:
     printf("ASGN(");

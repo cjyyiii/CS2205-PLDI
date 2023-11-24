@@ -69,9 +69,13 @@ NT_CMD:
   {
     $$ = (TDecl_Array($2,$4));
   }
-| NT_EXPR TM_ASGNOP NT_EXPR
+| TM_IDENT TM_ASGNOP NT_EXPR
   {
-    $$ = (TAsgn($1,$3));
+    $$ = (TAsgn(TVar($1),$3));
+  }
+| TM_IDENT TM_LEFT_BRACKET NT_EXPR TM_RIGHT_BRACKET TM_ASGNOP NT_EXPR
+  {
+    $$ = (TAsgn(TArray($1,$3),$6));
   }
 | NT_CMD TM_SEMICOL NT_CMD
   {
@@ -97,13 +101,13 @@ NT_EXPR_2:
   {
     $$ = ($2);
   }
+| TM_IDENT TM_LEFT_BRACKET NT_EXPR TM_RIGHT_BRACKET
+  {
+  $$ = (TArray($1,$3));
+  }
 | TM_IDENT
   {
     $$ = (TVar($1));
-  }
-| TM_IDENT TM_LEFT_BRACKET NT_EXPR TM_RIGHT_BRACKET
-  {
-    $$ = (TArray($1,$3));
   }
 | TM_NOT NT_EXPR_2
   {
