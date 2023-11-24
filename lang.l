@@ -66,8 +66,6 @@
     return TM_RIGHT_BRACKET;
     }
 
-
-
 "{" {
     return TM_LEFT_BRACE;
     }

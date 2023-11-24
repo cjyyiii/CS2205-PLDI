@@ -2,4 +2,4 @@
   var m;
   array p[6];
   m = - n * n;
-  m = * n - 1;
+  m = * n - 1

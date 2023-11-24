@@ -47,6 +47,7 @@ void * none;
 %left TM_MUL TM_DIV TM_MOD
 %left TM_NOT
 %left TM_LEFT_PAREN TM_RIGHT_PAREN
+%left TM_LEFT_BRACKET TM_RIGHT_BRACKET
 %right TM_SEMICOL
 
 %%
@@ -66,7 +67,7 @@ NT_CMD:
   }
 | TM_ARRAY TM_IDENT TM_LEFT_BRACKET TM_NAT TM_RIGHT_BRACKET
   {
-    $$ = (TDecl_Array($2,4));
+    $$ = (TDecl_Array($2,$4));
   }
 | NT_EXPR TM_ASGNOP NT_EXPR
   {
@@ -102,7 +103,7 @@ NT_EXPR_2:
   }
 | TM_IDENT TM_LEFT_BRACKET NT_EXPR TM_RIGHT_BRACKET
   {
-    $$ = (TArray($1,3));
+    $$ = (TArray($1,$3));
   }
 | TM_NOT NT_EXPR_2
   {

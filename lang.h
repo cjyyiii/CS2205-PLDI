@@ -47,7 +47,7 @@ struct expr {
   union {
     struct {unsigned int value; } CONST;
     struct {char * name; } VAR;
-    struct {char * name; unsigned int num; } ARRAY;
+    struct {char * name; struct expr * num; } ARRAY;
     struct {enum BinOpType op; struct expr * left; struct expr * right; } BINOP;
     struct {enum UnOpType op; struct expr * arg; } UNOP;
   } d;
@@ -67,7 +67,7 @@ struct cmd {
 
 struct expr * TConst(unsigned int value);
 struct expr * TVar(char * name);
-struct expr * TArray(char * name, unsigned int num);
+struct expr * TArray(char * name, struct expr * num);
 struct expr * TBinOp(enum BinOpType op, struct expr * left, struct expr * right);
 struct expr * TUnOp(enum UnOpType op, struct expr * arg);
 struct cmd * TDecl(char * name);
