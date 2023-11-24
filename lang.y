@@ -20,9 +20,10 @@ void * none;
 %token <n> TM_NAT
 %token <i> TM_IDENT
 %token <none> TM_LEFT_BRACE TM_RIGHT_BRACE
+%token <none> TM_LEFT_BRACKET TM_RIGHT_BRACKET
 %token <none> TM_LEFT_PAREN TM_RIGHT_PAREN
 %token <none> TM_SEMICOL
-%token <none> TM_VAR TM_IF TM_THEN TM_ELSE TM_WHILE TM_DO
+%token <none> TM_VAR TM_ARRAY TM_IF TM_THEN TM_ELSE TM_WHILE TM_DO
 %token <none> TM_ASGNOP
 %token <none> TM_OR
 %token <none> TM_AND
@@ -63,6 +64,10 @@ NT_CMD:
   {
     $$ = (TDecl($2));
   }
+| TM_ARRAY TM_IDENT TM_LEFT_BRACKET TM_NAT TM_RIGHT_BRACKET
+  {
+    $$ = (TDecl_Arr($2,4));
+  }
 | NT_EXPR TM_ASGNOP NT_EXPR
   {
     $$ = (TAsgn($1,$3));
@@ -94,6 +99,10 @@ NT_EXPR_2:
 | TM_IDENT
   {
     $$ = (TVar($1));
+  }
+| TM_IDENT TM_LEFT_BRACKET NT_EXPR TM_RIGHT_BRACKET
+  {
+    $$ = (TArray($1,3));
   }
 | TM_NOT NT_EXPR_2
   {

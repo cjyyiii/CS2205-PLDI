@@ -10,37 +10,41 @@
 0|[1-9][0-9]* {
     yylval.n = build_nat(yytext, yyleng);
     return TM_NAT;
-}
+    }
 
 "var" {
     return TM_VAR;
-}
+    }
+
+"array" {
+    return TM_ARRAY;
+    }
 
 "if" {
     return TM_IF;
-}
+    }
 
 "then" {
     return TM_THEN;
-}
+    }
 
 "else" {
     return TM_ELSE;
-}
+    }
 
 "while" {
     return TM_WHILE;
-}
+    }
 
 "do" {
     return TM_DO;
-}
+    }
 
 
 [_A-Za-z][_A-Za-z0-9]* {
     yylval.i = new_str(yytext, yyleng);
     return TM_IDENT;
-}
+    }
 
 ";" {
     return TM_SEMICOL;
@@ -53,6 +57,16 @@
 ")" {
     return TM_RIGHT_PAREN;
     }
+
+"[" {
+    return TM_LEFT_BRACKET;
+    }
+
+"]" {
+    return TM_RIGHT_BRACKET;
+    }
+
+
 
 "{" {
     return TM_LEFT_BRACE;
