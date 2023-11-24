@@ -35,7 +35,9 @@ enum ExprType {
 
 enum CmdType {
   T_DECL = 0,
+  T_DECLANDASGN,
   T_DECL_ARRAY,
+  T_DECLANDASGN_ARRAY,
   T_ASGN,
   T_SEQ,
   T_IF,
@@ -57,7 +59,9 @@ struct cmd {
   enum CmdType t;
   union {
     struct {char * name; } DECL;
+    struct {char * name; struct expr * value; } DECLANDASGN;
     struct {char * name; unsigned int size; } DECL_ARRAY;
+    // struct {char * name; unsigned int size; } DECLANDASGN_ARRAY;
     struct {struct expr * left; struct expr * right; } ASGN;
     struct {struct cmd * left; struct cmd * right; } SEQ;
     struct {struct expr * cond; struct cmd * left; struct cmd * right; } IF;
@@ -71,6 +75,7 @@ struct expr * TArray(char * name, struct expr * num);
 struct expr * TBinOp(enum BinOpType op, struct expr * left, struct expr * right);
 struct expr * TUnOp(enum UnOpType op, struct expr * arg);
 struct cmd * TDecl(char * name);
+struct cmd * TDeclAndAsgn(char * name, struct expr * vlaue);
 struct cmd * TDecl_Array(char * name, unsigned int size);
 struct cmd * TAsgn(struct expr * left, struct expr * right);
 struct cmd * TSeq(struct cmd * left, struct cmd * right);

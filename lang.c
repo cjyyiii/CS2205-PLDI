@@ -69,6 +69,14 @@ struct cmd * TDecl(char * name) {
   return res;
 }
 
+struct cmd * TDeclAndAsgn(char * name, struct expr * value) {
+  struct cmd * res = new_cmd_ptr();
+  res -> t = T_DECLANDASGN;
+  res -> d.DECLANDASGN.name = name;
+  res -> d.DECLANDASGN.value = value;
+  return res;
+}
+
 struct cmd * TDecl_Array(char * name, unsigned int size) {
   struct cmd * res = new_cmd_ptr();
   res -> t = T_DECL_ARRAY;
@@ -199,6 +207,11 @@ void print_cmd(struct cmd * c) {
   switch (c -> t) {
   case T_DECL:
     printf("DECL(%s)", c -> d.DECL.name);
+    break;
+  case T_DECLANDASGN:
+    printf("DECLANDASGN(%s", c -> d.DECLANDASGN.name);
+    print_expr(c -> d.DECLANDASGN.value);
+    printf(")");
     break;
   case T_DECL_ARRAY:
     printf("DECL_ARRAY(%s,%d)", c -> d.DECL_ARRAY.name, c -> d.DECL_ARRAY.size);
