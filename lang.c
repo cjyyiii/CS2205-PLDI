@@ -35,6 +35,14 @@ struct expr * TVar(char * name) {
   return res;
 }
 
+struct expr * TArray(char * name, unsigned int num) {
+  struct expr * res = new_expr_ptr();
+  res -> t = T_ARRAY;
+  res -> d.ARRAY.name = name;
+  res -> d.ARRAY.num = num;
+  return res;
+}
+
 struct expr * TBinOp(enum BinOpType op, struct expr * left, struct expr * right) {
   struct expr * res = new_expr_ptr();
   res -> t = T_BINOP;
@@ -56,6 +64,14 @@ struct cmd * TDecl(char * name) {
   struct cmd * res = new_cmd_ptr();
   res -> t = T_DECL;
   res -> d.DECL.name = name;
+  return res;
+}
+
+struct cmd * TDecl_Array(char * name, unsigned int size) {
+  struct cmd * res = new_cmd_ptr();
+  res -> t = T_DECL_ARRAY;
+  res -> d.DECL_ARRAY.name = name;
+  res -> d.DECL_ARRAY.size = size;
   return res;
 }
 
@@ -155,6 +171,8 @@ void print_expr(struct expr * e) {
   case T_VAR:
     printf("VAR(%s)", e -> d.VAR.name);
     break;
+  case T_ARRAY:
+    printf("ARRAY(%s[%d])", e -> d.ARRAY.name, e -> d.ARRAY.num);
   case T_BINOP:
     print_binop(e -> d.BINOP.op);
     printf("(");
@@ -176,6 +194,9 @@ void print_cmd(struct cmd * c) {
   switch (c -> t) {
   case T_DECL:
     printf("DECL(%s)", c -> d.DECL.name);
+    break;
+  case T_DECL_ARRAY:
+    printf("DECL_ARRAY(%s[%d])", c -> d.DECL_ARRAY.name, c -> d.DECL_ARRAY.size);
     break;
   case T_ASGN:
     printf("ASGN(");
@@ -209,30 +230,3 @@ void print_cmd(struct cmd * c) {
     break;
   }
 }
-
-unsigned int build_nat(char * c, int len) {
-  int s = 0, i = 0;
-  for (i = 0; i < len; ++i) {
-    if (s > 429496729) {
-      printf("We cannot handle natural numbers greater than 4294967295.\n");
-      exit(0);
-    }
-    if (s == 429496729 && c[i] > '5') {
-      printf("We cannot handle natural numbers greater than 4294967295.\n");
-      exit(0);
-    }
-    s = s * 10 + (c[i] - '0');
-  }
-  return s;
-}
-
-char * new_str(char * str, int len) {
-  char * res = (char *) malloc(sizeof(char) * (len + 1));
-  if (res == NULL) {
-    printf("Failure in malloc.\n");
-    exit(0);
-  }
-  strcpy(res, str);
-  return res;
-}
-

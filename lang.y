@@ -66,7 +66,7 @@ NT_CMD:
   }
 | TM_ARRAY TM_IDENT TM_LEFT_BRACKET TM_NAT TM_RIGHT_BRACKET
   {
-    $$ = (TDecl_Arr($2,4));
+    $$ = (TDecl_Array($2,4));
   }
 | NT_EXPR TM_ASGNOP NT_EXPR
   {
