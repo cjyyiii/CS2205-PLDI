@@ -3,6 +3,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include "lib.h"
 
 enum BinOpType {
   T_PLUS,
@@ -30,7 +31,7 @@ enum ExprType {
   T_VAR,
   T_ARRAY,
   T_BINOP,
-  T_UNOP,
+  T_UNOP
 };
 
 enum CmdType {
@@ -41,7 +42,7 @@ enum CmdType {
   T_ASGN,
   T_SEQ,
   T_IF,
-  T_WHILE,
+  T_WHILE
 };
 
 struct expr {
@@ -55,13 +56,18 @@ struct expr {
   } d;
 };
 
+struct expr_list {
+  struct expr * data;
+  struct expr_list * next;
+};
+
 struct cmd {
   enum CmdType t;
   union {
     struct {char * name; } DECL;
     struct {char * name; struct expr * value; } DECLANDASGN;
     struct {char * name; unsigned int size; } DECL_ARRAY;
-    // struct {char * name; unsigned int size; } DECLANDASGN_ARRAY;
+    struct {char * name; unsigned int size; struct expr_list * value; } DECLANDASGN_ARRAY;
     struct {struct expr * left; struct expr * right; } ASGN;
     struct {struct cmd * left; struct cmd * right; } SEQ;
     struct {struct expr * cond; struct cmd * left; struct cmd * right; } IF;
@@ -69,6 +75,8 @@ struct cmd {
   } d;
 };
 
+struct expr_list * TENil();
+struct expr_list * TECons(struct expr * data, struct expr_list * next);
 struct expr * TConst(unsigned int value);
 struct expr * TVar(char * name);
 struct expr * TArray(char * name, struct expr * num);
@@ -77,6 +85,7 @@ struct expr * TUnOp(enum UnOpType op, struct expr * arg);
 struct cmd * TDecl(char * name);
 struct cmd * TDeclAndAsgn(char * name, struct expr * vlaue);
 struct cmd * TDecl_Array(char * name, unsigned int size);
+struct cmd * TDeclAndAsgn_Array(char * name, unsigned int size, struct expr_list * vlaue);
 struct cmd * TAsgn(struct expr * left, struct expr * right);
 struct cmd * TSeq(struct cmd * left, struct cmd * right);
 struct cmd * TIf(struct expr * cond, struct cmd * left, struct cmd * right);
@@ -85,9 +94,7 @@ struct cmd * TWhile(struct expr * cond, struct cmd * body);
 void print_binop(enum BinOpType op);
 void print_unop(enum UnOpType op);
 void print_expr(struct expr * e);
+void print_expr_list(struct expr_list * es);
 void print_cmd(struct cmd * c);
-
-unsigned int build_nat(char * c, int len);
-char * new_str(char * str, int len);
 
 #endif // LANG_H_INCLUDED

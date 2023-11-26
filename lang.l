@@ -45,6 +45,10 @@
     return TM_IDENT;
     }
 
+"," {
+    return TM_COMMA;
+    }
+    
 ";" {
     return TM_SEMICOL;
     }

@@ -12,6 +12,7 @@
 unsigned int n;
 char * i;
 struct expr * e;
+struct expr_list * es;
 struct cmd * c;
 void * none;
 }
@@ -22,7 +23,7 @@ void * none;
 %token <none> TM_LEFT_BRACE TM_RIGHT_BRACE
 %token <none> TM_LEFT_BRACKET TM_RIGHT_BRACKET
 %token <none> TM_LEFT_PAREN TM_RIGHT_PAREN
-%token <none> TM_SEMICOL
+%token <none> TM_SEMICOL TM_COMMA
 %token <none> TM_VAR TM_ARRAY TM_IF TM_THEN TM_ELSE TM_WHILE TM_DO
 %token <none> TM_ASGNOP
 %token <none> TM_OR
@@ -37,6 +38,7 @@ void * none;
 %type <c> NT_CMD
 %type <e> NT_EXPR_2
 %type <e> NT_EXPR
+%type <es> NT_EXPR_LIST
 
 // Priority
 %nonassoc TM_ASGNOP
@@ -68,6 +70,10 @@ NT_CMD:
 | TM_VAR TM_IDENT
   {
     $$ = (TDecl($2));
+  }
+| TM_ARRAY TM_IDENT TM_LEFT_BRACKET TM_NAT TM_RIGHT_BRACKET TM_ASGNOP TM_LEFT_BRACE NT_EXPR_LIST TM_RIGHT_BRACE
+  {
+    $$ = (TDeclAndAsgn_Array($2,$4,$8));
   }
 | TM_ARRAY TM_IDENT TM_LEFT_BRACKET TM_NAT TM_RIGHT_BRACKET
   {
@@ -182,6 +188,16 @@ NT_EXPR:
   }
 ;
 
+NT_EXPR_LIST:
+  NT_EXPR
+  {
+  $$ = (TECons($1,TENil()));
+  }
+| NT_EXPR TM_COMMA NT_EXPR_LIST
+  {
+  $$ = (TECons($1,$3));
+  }
+;
 
 %%
 

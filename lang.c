@@ -12,12 +12,33 @@ struct expr * new_expr_ptr() {
   return res;
 }
 
+struct expr_list * new_expr_list_ptr() {
+  struct expr_list * res =
+    (struct expr_list *) malloc(sizeof(struct expr_list));
+  if (res == NULL) {
+    printf("Failure in malloc.\n");
+    exit(0);
+  }
+  return res;
+}
+
 struct cmd * new_cmd_ptr() {
   struct cmd * res = (struct cmd *) malloc(sizeof(struct cmd));
   if (res == NULL) {
     printf("Failure in malloc.\n");
     exit(0);
   }
+  return res;
+}
+
+struct expr_list * TENil() {
+  return NULL;
+}
+
+struct expr_list * TECons(struct expr * data, struct expr_list * next) {
+  struct expr_list * res = new_expr_list_ptr();
+  res -> data = data;
+  res -> next = next;
   return res;
 }
 
@@ -82,6 +103,15 @@ struct cmd * TDecl_Array(char * name, unsigned int size) {
   res -> t = T_DECL_ARRAY;
   res -> d.DECL_ARRAY.name = name;
   res -> d.DECL_ARRAY.size = size;
+  return res;
+}
+
+struct cmd * TDeclAndAsgn_Array(char * name, unsigned int size, struct expr_list * value) {
+  struct cmd * res = new_cmd_ptr();
+  res -> t = T_DECLANDASGN_ARRAY;
+  res -> d.DECLANDASGN_ARRAY.name = name;
+  res -> d.DECLANDASGN_ARRAY.size = size;
+  res -> d.DECLANDASGN_ARRAY.value = value;
   return res;
 }
 
@@ -203,6 +233,15 @@ void print_expr(struct expr * e) {
   }
 }
 
+void print_expr_list(struct expr_list * es) {
+  if (es == NULL) {
+    return;
+  }
+  printf(",");
+  print_expr(es -> data);
+  print_expr_list(es -> next);
+}
+
 void print_cmd(struct cmd * c) {
   switch (c -> t) {
   case T_DECL:
@@ -216,6 +255,11 @@ void print_cmd(struct cmd * c) {
   case T_DECL_ARRAY:
     printf("DECL_ARRAY(%s,%d)", c -> d.DECL_ARRAY.name, c -> d.DECL_ARRAY.size);
     break;
+  case T_DECLANDASGN_ARRAY:
+    printf("DECLANDASGN_ARRAY(%s,%d", c -> d.DECLANDASGN_ARRAY.name, c -> d.DECLANDASGN_ARRAY.size);
+    print_expr_list(c -> d.DECLANDASGN_ARRAY.value);
+    printf(")");
+    break;  
   case T_ASGN:
     printf("ASGN(");
     print_expr(c -> d.ASGN.left);
