@@ -39,6 +39,26 @@
 "do" {
     return TM_DO;
     }
+    
+"malloc" {
+    return TM_MALLOC;
+}
+
+"read_int" {
+    return TM_RI;
+}
+
+"read_char" {
+    return TM_RC;
+}
+
+"write_int" {
+    return TM_WI;
+}
+
+"write_char" {
+    return TM_WC;
+}
 
 [_A-Za-z][_A-Za-z0-9]* {
     yylval.i = new_str(yytext, yyleng);
@@ -48,7 +68,7 @@
 "," {
     return TM_COMMA;
     }
-    
+
 ";" {
     return TM_SEMICOL;
     }

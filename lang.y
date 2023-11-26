@@ -24,6 +24,7 @@ void * none;
 %token <none> TM_LEFT_BRACKET TM_RIGHT_BRACKET
 %token <none> TM_LEFT_PAREN TM_RIGHT_PAREN
 %token <none> TM_SEMICOL TM_COMMA
+%token <none> TM_MALLOC TM_RI TM_RC TM_WI TM_WC
 %token <none> TM_VAR TM_ARRAY TM_IF TM_THEN TM_ELSE TM_WHILE TM_DO
 %token <none> TM_ASGNOP
 %token <none> TM_OR
@@ -99,6 +100,14 @@ NT_CMD:
   {
     $$ = (TWhile($2,$5));
   }
+| TM_WI TM_LEFT_PAREN NT_EXPR TM_RIGHT_PAREN
+  {
+    $$ = (TWriteInt($3));
+  }
+| TM_WC TM_LEFT_PAREN NT_EXPR TM_RIGHT_PAREN
+  {
+    $$ = (TWriteChar($3));
+  }
 ;
 
 
@@ -118,6 +127,18 @@ NT_EXPR_2:
 | TM_IDENT
   {
     $$ = (TVar($1));
+  }
+| TM_RI TM_LEFT_PAREN TM_RIGHT_PAREN
+  {
+    $$ = (TReadInt());
+  }
+| TM_RC TM_LEFT_PAREN TM_RIGHT_PAREN
+  {
+    $$ = (TReadChar());
+  }
+| TM_MALLOC TM_LEFT_PAREN NT_EXPR TM_RIGHT_PAREN
+  {
+    $$ = (TMalloc($3));
   }
 | TM_NOT NT_EXPR_2
   {
