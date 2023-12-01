@@ -48,7 +48,7 @@ E&&E | E||E | !E
 L :: = E,E,……,E
 
 D1 :: = V | V = E | V = CH
-D2 :: = V[N] | V[N] = {L} | V[N] = S
+D2 :: = V[N] | V[N] = {L} | V = S
 Q1 :: = var D1,D1,……,D1
 Q2 :: = array D2,D2,……,D2
 
