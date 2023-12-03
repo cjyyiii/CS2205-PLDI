@@ -42,6 +42,17 @@ struct expr_list * TECons(struct expr * data, struct expr_list * next) {
   return res;
 }
 
+struct cmd_list * TCNil() {
+  return NULL;
+}
+
+struct cmd_list * TCCons(struct cmd * data, struct cmd_list * next) {
+  struct cmd_list * res = new_cmd_list_ptr();
+  res -> data = data;
+  res -> next = next;
+  return res;
+}
+
 struct expr * TConst(unsigned int value) {
   struct expr * res = new_expr_ptr();
   res -> t = T_CONST;
@@ -55,6 +66,20 @@ struct expr * TVar(char * name) {
   res -> d.VAR.name = name;
   return res;
 }
+
+struct expr * TChar(char * value) {
+  struct expr * res = new_expr_ptr();
+  res -> t = T_VAR;
+  res -> d.VAR.name = name;
+  return res;
+}//todo
+
+struct expr * TString(char * value) {
+  struct expr * res = new_expr_ptr();
+  res -> t = T_VAR;
+  res -> d.VAR.name = name;
+  return res;
+}//todo
 
 struct expr * TArray(char * name, struct expr * num) {
   struct expr * res = new_expr_ptr();
@@ -133,6 +158,15 @@ struct cmd * TDeclAndAsgn_Array(char * name, unsigned int size, struct expr_list
   res -> d.DECLANDASGN_ARRAY.value = value;
   return res;
 }
+
+struct cmd * TDeclAndAsgn_String(char * name, struct expr * value) {
+  struct cmd * res = new_cmd_ptr();
+  res -> t = T_DECLANDASGN_ARRAY;
+  res -> d.DECLANDASGN_ARRAY.name = name;
+  res -> d.DECLANDASGN_ARRAY.size = size;
+  res -> d.DECLANDASGN_ARRAY.value = value;
+  return res;
+}//todo
 
 struct cmd * TAsgn(struct expr * left, struct expr * right) {
   struct cmd * res = new_cmd_ptr();

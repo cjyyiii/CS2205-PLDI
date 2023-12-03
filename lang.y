@@ -14,12 +14,14 @@ char * i;
 struct expr * e;
 struct expr_list * es;
 struct cmd * c;
+struct cmd_list * cs;
 void * none;
 }
 
 // Terminals
 %token <n> TM_NAT
-%token <i> TM_IDENT
+%token <i> TM_IDENT TM_CHAR TM_STRING
+%token <none> TM_SINGLE_QUOTE TM_DOUBLE_QUOTE
 %token <none> TM_LEFT_BRACE TM_RIGHT_BRACE
 %token <none> TM_LEFT_BRACKET TM_RIGHT_BRACKET
 %token <none> TM_LEFT_PAREN TM_RIGHT_PAREN
@@ -40,9 +42,14 @@ void * none;
 %type <e> NT_EXPR_2
 %type <e> NT_EXPR
 %type <es> NT_EXPR_LIST
+%type <cs> NT_DECL_LIST_1
+%type <cs> NT_DECL_LIST_2
+%type <cs> NT_DECL_LIST_3
+%type <cs> NT_DECL_LIST_4
 
 // Priority
 %nonassoc TM_ASGNOP
+%left TM_SINGLE_QUOTE
 %left TM_OR
 %left TM_AND
 %left TM_LT TM_LE TM_GT TM_GE TM_EQ TM_NE
@@ -51,6 +58,7 @@ void * none;
 %left TM_NOT
 %left TM_LEFT_PAREN TM_RIGHT_PAREN
 %left TM_LEFT_BRACKET TM_RIGHT_BRACKET
+%left TM_DOUBLE_QUOTE
 %right TM_SEMICOL
 
 %%
@@ -64,21 +72,13 @@ NT_WHOLE:
 ;
 
 NT_CMD:
-  TM_VAR TM_IDENT TM_ASGNOP NT_EXPR
+  TM_VAR NT_DECL_LIST_3
   {
-    $$ = (TDeclAndAsgn($2,$4));
+    $$ = ();
   }
-| TM_VAR TM_IDENT
+| TM_ARRAY NT_DECL_LIST_4
   {
-    $$ = (TDecl($2));
-  }
-| TM_ARRAY TM_IDENT TM_LEFT_BRACKET TM_NAT TM_RIGHT_BRACKET TM_ASGNOP TM_LEFT_BRACE NT_EXPR_LIST TM_RIGHT_BRACE
-  {
-    $$ = (TDeclAndAsgn_Array($2,$4,$8));
-  }
-| TM_ARRAY TM_IDENT TM_LEFT_BRACKET TM_NAT TM_RIGHT_BRACKET
-  {
-    $$ = (TDecl_Array($2,$4));
+    $$ = ();
   }
 | TM_IDENT TM_ASGNOP NT_EXPR
   {
@@ -123,6 +123,14 @@ NT_EXPR_2:
 | TM_IDENT TM_LEFT_BRACKET NT_EXPR TM_RIGHT_BRACKET
   {
   $$ = (TArray($1,$3));
+  }
+| TM_SINGLE_QUOTE TM_CHAR TM_SINGLE_QUOTE
+  {
+    $$ = (TChar($2));  
+  }
+| TM_DOUBLE_QUOTE TM_STRING TM_DOUBLE_QUOTE
+  {
+    $$ = (TString($2));
   }
 | TM_IDENT
   {
@@ -217,6 +225,54 @@ NT_EXPR_LIST:
 | NT_EXPR TM_COMMA NT_EXPR_LIST
   {
   $$ = (TECons($1,$3));
+  }
+;
+
+NT_DECL_LIST_1:
+  TM_IDENT TM_ASGNOP NT_EXPR
+  {
+    $$ = (TDeclAndAsgn($1,$3));
+  }
+| TM_VAR TM_IDENT
+  {
+    $$ = (TDecl($1));
+  }
+;
+
+NT_DECL_LIST_2:
+  TM_IDENT TM_LEFT_BRACKET TM_NAT TM_RIGHT_BRACKET TM_ASGNOP TM_LEFT_BRACE NT_EXPR_LIST TM_RIGHT_BRACE
+  {
+    $$ = (TDeclAndAsgn_Array($1,$3,$7));
+  }
+| TM_IDENT TM_LEFT_BRACKET TM_NAT TM_RIGHT_BRACKET
+  {
+    $$ = (TDecl_Array($1,$3));
+  }
+| TM_IDENT TM_ASGNOP TM_DOUBLE_QUOTE TM_STRING TM_DOUBLE_QUOTE
+  {
+    $$ = (TDeclAndAsgn_String($1,$4));
+  }
+;
+
+NT_DECL_LIST_3:
+  NT_DECL_LIST_1
+  {
+  $$ = (TCCons($1,TCNil()));
+  }
+| NT_DECL_LIST_1 TM_COMMA NT_DECL_LIST_1
+  {
+  $$ = (TCCons($1,$3));
+  }
+;
+
+NT_DECL_LIST_4:
+  NT_DECL_LIST_2
+  {
+  $$ = (TCCons($1,TCNil()));
+  }
+| NT_DECL_LIST_2 TM_COMMA NT_DECL_LIST_2
+  {
+  $$ = (TCCons($1,$3));
   }
 ;
 
