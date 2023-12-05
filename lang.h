@@ -29,6 +29,8 @@ enum UnOpType {
 enum ExprType {
   T_CONST = 0,
   T_VAR,
+  T_CHAR,
+  T_STRING,
   T_ARRAY,
   T_BINOP,
   T_UNOP,
@@ -42,6 +44,7 @@ enum CmdType {
   T_DECLANDASGN,
   T_DECL_ARRAY,
   T_DECLANDASGN_ARRAY,
+  T_DECLANDASGN_STRING,
   T_ASGN,
   T_SEQ,
   T_IF,
@@ -55,6 +58,8 @@ struct expr {
   union {
     struct {unsigned int value; } CONST;
     struct {char * name; } VAR;
+    struct {char * value; } CHAR;
+    struct {char * value; } STRING;
     struct {char * name; struct expr * num; } ARRAY;
     struct {enum BinOpType op; struct expr * left; struct expr * right; } BINOP;
     struct {enum UnOpType op; struct expr * arg; } UNOP;
@@ -76,6 +81,7 @@ struct cmd {
     struct {char * name; struct expr * value; } DECLANDASGN;
     struct {char * name; unsigned int size; } DECL_ARRAY;
     struct {char * name; unsigned int size; struct expr_list * value; } DECLANDASGN_ARRAY;
+    struct {char * name; struct expr * value; } DECLANDASGN_STRING;
     struct {struct expr * left; struct expr * right; } ASGN;
     struct {struct cmd * left; struct cmd * right; } SEQ;
     struct {struct expr * cond; struct cmd * left; struct cmd * right; } IF;
@@ -85,10 +91,20 @@ struct cmd {
   } d;
 };
 
+struct cmd_list {
+  struct cmd * data;
+  struct cmd_list * next;
+};
+
+
 struct expr_list * TENil();
 struct expr_list * TECons(struct expr * data, struct expr_list * next);
+struct cmd_list * TCNil();
+struct cmd_list * TCCons(struct cmd * data, struct cmd_list * next);
 struct expr * TConst(unsigned int value);
 struct expr * TVar(char * name);
+struct expr * TChar(char * value);
+struct expr * TString(char * value);
 struct expr * TArray(char * name, struct expr * num);
 struct expr * TBinOp(enum BinOpType op, struct expr * left, struct expr * right);
 struct expr * TUnOp(enum UnOpType op, struct expr * arg);
@@ -99,6 +115,7 @@ struct cmd * TDecl(char * name);
 struct cmd * TDecl_Array(char * name, unsigned int size);
 struct cmd * TDeclAndAsgn(char * name, struct expr * value);
 struct cmd * TDeclAndAsgn_Array(char * name, unsigned int size, struct expr_list * value);
+struct cmd * TDeclAndAsgn_String(char * name, struct expr * value);
 struct cmd * TAsgn(struct expr * left, struct expr * right);
 struct cmd * TSeq(struct cmd * left, struct cmd * right);
 struct cmd * TIf(struct expr * cond, struct cmd * left, struct cmd * right);

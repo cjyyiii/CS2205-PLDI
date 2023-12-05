@@ -65,12 +65,30 @@
     return TM_IDENT;
     }
 
+[.] {
+    yylval.i = new_str(yytext, yyleng);
+    return TM_CHAR;
+    }
+
+[.][\n] {
+    yylval.i = new_str(yytext, yyleng);
+    return TM_STRING;
+    }
+
 "," {
     return TM_COMMA;
     }
 
 ";" {
     return TM_SEMICOL;
+    }
+
+""" {
+    return TM_DOUBLE_QUOTE
+    }
+
+"'" {
+    returnn TM_SINGLE_QUOTE
     }
 
 "(" {
