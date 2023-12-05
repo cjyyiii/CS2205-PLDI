@@ -67,20 +67,6 @@ struct expr * TVar(char * name) {
   return res;
 }
 
-struct expr * TChar(char * value) {
-  struct expr * res = new_expr_ptr();
-  res -> t = T_VAR;
-  res -> d.VAR.name = name;
-  return res;
-}//todo
-
-struct expr * TString(char * value) {
-  struct expr * res = new_expr_ptr();
-  res -> t = T_VAR;
-  res -> d.VAR.name = name;
-  return res;
-}//todo
-
 struct expr * TArray(char * name, struct expr * num) {
   struct expr * res = new_expr_ptr();
   res -> t = T_ARRAY;
@@ -90,6 +76,20 @@ struct expr * TArray(char * name, struct expr * num) {
   res -> d.ARRAY.num->t= num->t;
   return res;
 }
+
+struct expr * TChar(char * value) {
+    struct expr * res = new_expr_ptr();
+    res -> t = T_VAR;
+    res -> d.VAR.name = name;
+    return res;
+}//todo
+
+struct expr * TString(char * value) {
+    struct expr * res = new_expr_ptr();
+    res -> t = T_VAR;
+    res -> d.VAR.name = name;
+    return res;
+}//todo
 
 struct expr * TBinOp(enum BinOpType op, struct expr * left, struct expr * right) {
   struct expr * res = new_expr_ptr();

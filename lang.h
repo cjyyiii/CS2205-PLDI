@@ -96,6 +96,19 @@ struct cmd_list {
   struct cmd_list * next;
 };
 
+enum DeclItemType {
+
+};
+
+struct decl_item {
+
+};
+
+struct decl_list {
+    struct decl_item * data;
+    struct decl_list * next;
+};
+
 
 struct expr_list * TENil();
 struct expr_list * TECons(struct expr * data, struct expr_list * next);
@@ -122,6 +135,8 @@ struct cmd * TIf(struct expr * cond, struct cmd * left, struct cmd * right);
 struct cmd * TWhile(struct expr * cond, struct cmd * body);
 struct cmd * TWriteInt(struct expr * arg);
 struct cmd * TWriteChar(struct expr * arg);
+struct decl_list * TDeclList_Var(struct decl_item * p);
+struct decl_list * TDeclList_Array(struct decl_item * p);
 
 void print_binop(enum BinOpType op);
 void print_unop(enum UnOpType op);
