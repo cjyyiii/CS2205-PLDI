@@ -248,7 +248,7 @@ NT_DECL_ARRAY:
 NT_DECL_LIST_VAR:
   NT_DECL_VAR
   {
-  $$ = (TCCons($1,TDNil()));
+  $$ = (TCCons($1,TCNil()));
   }
 | NT_DECL_VAR TM_COMMA NT_DECL_LIST_VAR
   {
@@ -259,7 +259,7 @@ NT_DECL_LIST_VAR:
 NT_DECL_LIST_ARRAY:
   NT_DECL_ARRAY
   {
-  $$ = (TCCons($1,TDANil()));
+  $$ = (TCCons($1,TCNil()));
   }
 | NT_DECL_ARRAY TM_COMMA NT_DECL_LIST_ARRAY
   {
