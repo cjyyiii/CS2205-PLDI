@@ -91,29 +91,36 @@ struct cmd {
   } d;
 };
 
-struct cmd_list {
-  struct cmd * data;
-  struct cmd_list * next;
+struct decl_item_var {
+    union{
+        struct {char * name; } DECL;
+        struct {char * name; struct expr * value; } DECLANDASGN;
+    }dv;
 };
 
-enum DeclItemType {
-
+struct decl_list_var {
+    struct decl_item_var * data;
+    struct decl_list_var * next;
 };
 
-struct decl_item {
-
+struct decl_item_array {
+    union{
+        struct {char * name; unsigned int size; } DECL_ARRAY;
+        struct {char * name; unsigned int size; struct expr_list * value; } DECLANDASGN_ARRAY;
+    }da;
 };
 
-struct decl_list {
-    struct decl_item * data;
-    struct decl_list * next;
+struct decl_list_array {
+    struct decl_item_array * data;
+    struct decl_list_array * next;
 };
-
 
 struct expr_list * TENil();
 struct expr_list * TECons(struct expr * data, struct expr_list * next);
-struct cmd_list * TCNil();
-struct cmd_list * TCCons(struct cmd * data, struct cmd_list * next);
+struct decl_list_var * TDVNil();
+struct decl_list_var * TDVCons(struct decl_item_var * data, struct decl_list_var * next);
+struct decl_list_array * TDANil();
+struct decl_list_array * TDACons(struct decl_item_array * data, struct decl_list_array * next);
 struct expr * TConst(unsigned int value);
 struct expr * TVar(char * name);
 struct expr * TChar(char * value);
@@ -135,8 +142,6 @@ struct cmd * TIf(struct expr * cond, struct cmd * left, struct cmd * right);
 struct cmd * TWhile(struct expr * cond, struct cmd * body);
 struct cmd * TWriteInt(struct expr * arg);
 struct cmd * TWriteChar(struct expr * arg);
-struct decl_list * TDeclList_Var(struct decl_item * p);
-struct decl_list * TDeclList_Array(struct decl_item * p);
 
 void print_binop(enum BinOpType op);
 void print_unop(enum UnOpType op);

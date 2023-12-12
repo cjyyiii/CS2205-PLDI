@@ -71,11 +71,11 @@ NT_WHOLE:
 NT_CMD:
   TM_VAR NT_DECL_LIST_VAR
   {
-    $$ = (TDeclList_Var($2));
+    $$ = ($2);
   }
 | TM_ARRAY NT_DECL_LIST_ARRAY
   {
-    $$ = (TDeclList_Array($2));
+    $$ = ($2);
   }
 | NT_CMD TM_SEMICOL NT_CMD
   {
@@ -248,22 +248,22 @@ NT_DECL_ARRAY:
 NT_DECL_LIST_VAR:
   NT_DECL_VAR
   {
-  $$ = (TCCons($1,TCNil()));
+  $$ = (TDVCons($1,TDVNil()));
   }
 | NT_DECL_VAR TM_COMMA NT_DECL_LIST_VAR
   {
-  $$ = (TCCons($1,$3));
+  $$ = (TDVCons($1,$3));
   }
 ;
 
 NT_DECL_LIST_ARRAY:
   NT_DECL_ARRAY
   {
-  $$ = (TCCons($1,TCNil()));
+  $$ = (TDACons($1,TDANil()));
   }
 | NT_DECL_ARRAY TM_COMMA NT_DECL_LIST_ARRAY
   {
-  $$ = (TCCons($1,$3));
+  $$ = (TDACons($1,$3));
   }
 ;
 

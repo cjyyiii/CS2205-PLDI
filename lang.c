@@ -46,13 +46,6 @@ struct cmd_list * TCNil() {
   return NULL;
 }
 
-struct cmd_list * TCCons(struct cmd * data, struct cmd_list * next) {
-  struct cmd_list * res = new_cmd_list_ptr();
-  res -> data = data;
-  res -> next = next;
-  return res;
-}
-
 struct expr * TConst(unsigned int value) {
   struct expr * res = new_expr_ptr();
   res -> t = T_CONST;

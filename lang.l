@@ -65,12 +65,12 @@
     return TM_IDENT;
     }
 
-['][_A-Za-z0-9][']{
+[']?[']{
     yylval.i = new_str(yytext, yyleng);
     return TM_CHAR;
     }
 
-["][_A-Za-z0-9]*["]{
+["]?*["]{
     yylval.i = new_str(yytext, yyleng);
     return TM_STRING;
     }
