@@ -36,14 +36,72 @@ struct expr_list * TENil() {
 }
 
 struct expr_list * TECons(struct expr * data, struct expr_list * next) {
-  struct expr_list * res = new_expr_list_ptr();
-  res -> data = data;
-  res -> next = next;
-  return res;
+    struct expr_list * res = new_expr_list_ptr();
+    res -> data = data;
+    res -> next = next;
+    return res;
 }
 
-struct cmd_list * TCNil() {
-  return NULL;
+//struct decl_item_var * new_decl_item_var_ptr(){
+//    struct decl_item_var * res =
+//            (struct decl_item_var *) malloc(sizeof(struct decl_item_var));
+//    if (res == NULL) {
+//        printf("Failure in malloc.\n");
+//        exit(0);
+//    }
+//    return res;
+//}
+//
+//struct decl_item_array * new_decl_item_array_ptr(){
+//    struct decl_item_array * res =
+//            (struct decl_item_array *) malloc(sizeof(struct decl_item_array));
+//    if (res == NULL) {
+//        printf("Failure in malloc.\n");
+//        exit(0);
+//    }
+//    return res;
+//}
+
+struct decl_list_var * new_decl_list_var_ptr(){
+    struct decl_list_var * res =
+            (struct decl_list_var *) malloc(sizeof(struct decl_list_var));
+    if (res == NULL) {
+        printf("Failure in malloc.\n");
+        exit(0);
+    }
+    return res;
+}
+
+struct decl_list_array * new_decl_list_array_ptr(){
+    struct decl_list_array * res =
+            (struct decl_list_array *) malloc(sizeof(struct decl_list_array));
+    if (res == NULL) {
+        printf("Failure in malloc.\n");
+        exit(0);
+    }
+    return res;
+}
+
+struct decl_list_var * TDVNil(){
+    return NULL;
+}
+
+struct decl_list_array * TDANil(){
+    return NULL;
+}
+
+struct decl_list_var * TDVCons(struct cmd * data, struct decl_list_var * next){
+    struct decl_list_var * res = new_decl_list_var_ptr();
+    res -> data = data;
+    res -> next = next;
+    return res;
+}
+
+struct decl_list_array * TDACons(struct cmd * data, struct decl_list_array * next){
+    struct decl_list_array * res = new_decl_list_array_ptr();
+    res -> data = data;
+    res -> next = next;
+    return res;
 }
 
 struct expr * TConst(unsigned int value) {

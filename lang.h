@@ -91,36 +91,36 @@ struct cmd {
   } d;
 };
 
-struct decl_item_var {
-    union{
-        struct {char * name; } DECL;
-        struct {char * name; struct expr * value; } DECLANDASGN;
-    }dv;
-};
+//struct decl_item_var {
+//    union{
+//        struct {char * name; } DECL;
+//        struct {char * name; struct expr * value; } DECLANDASGN;
+//    }dv;
+//};
 
 struct decl_list_var {
-    struct decl_item_var * data;
+    struct cmd * data;
     struct decl_list_var * next;
 };
 
-struct decl_item_array {
-    union{
-        struct {char * name; unsigned int size; } DECL_ARRAY;
-        struct {char * name; unsigned int size; struct expr_list * value; } DECLANDASGN_ARRAY;
-    }da;
-};
+//struct decl_item_array {
+//    union{
+//        struct {char * name; unsigned int size; } DECL_ARRAY;
+//        struct {char * name; unsigned int size; struct expr_list * value; } DECLANDASGN_ARRAY;
+//    }da;
+//};
 
 struct decl_list_array {
-    struct decl_item_array * data;
+    struct cmd * data;
     struct decl_list_array * next;
 };
 
 struct expr_list * TENil();
 struct expr_list * TECons(struct expr * data, struct expr_list * next);
 struct decl_list_var * TDVNil();
-struct decl_list_var * TDVCons(struct decl_item_var * data, struct decl_list_var * next);
+struct decl_list_var * TDVCons(struct cmd * data, struct decl_list_var * next);
 struct decl_list_array * TDANil();
-struct decl_list_array * TDACons(struct decl_item_array * data, struct decl_list_array * next);
+struct decl_list_array * TDACons(struct cmd * data, struct decl_list_array * next);
 struct expr * TConst(unsigned int value);
 struct expr * TVar(char * name);
 struct expr * TChar(char * value);
