@@ -42,29 +42,9 @@ struct expr_list * TECons(struct expr * data, struct expr_list * next) {
     return res;
 }
 
-//struct decl_item_var * new_decl_item_var_ptr(){
-//    struct decl_item_var * res =
-//            (struct decl_item_var *) malloc(sizeof(struct decl_item_var));
-//    if (res == NULL) {
-//        printf("Failure in malloc.\n");
-//        exit(0);
-//    }
-//    return res;
-//}
-//
-//struct decl_item_array * new_decl_item_array_ptr(){
-//    struct decl_item_array * res =
-//            (struct decl_item_array *) malloc(sizeof(struct decl_item_array));
-//    if (res == NULL) {
-//        printf("Failure in malloc.\n");
-//        exit(0);
-//    }
-//    return res;
-//}
-
-struct decl_list_var * new_decl_list_var_ptr(){
-    struct decl_list_var * res =
-            (struct decl_list_var *) malloc(sizeof(struct decl_list_var));
+struct cmd_list * new_cmd_list_ptr(){
+    struct cmd_list * res =
+            (struct cmd_list *) malloc(sizeof(struct cmd_list));
     if (res == NULL) {
         printf("Failure in malloc.\n");
         exit(0);
@@ -72,33 +52,12 @@ struct decl_list_var * new_decl_list_var_ptr(){
     return res;
 }
 
-struct decl_list_array * new_decl_list_array_ptr(){
-    struct decl_list_array * res =
-            (struct decl_list_array *) malloc(sizeof(struct decl_list_array));
-    if (res == NULL) {
-        printf("Failure in malloc.\n");
-        exit(0);
-    }
-    return res;
-}
-
-struct decl_list_var * TDVNil(){
+struct cmd_list * TCNil(){
     return NULL;
 }
 
-struct decl_list_array * TDANil(){
-    return NULL;
-}
-
-struct decl_list_var * TDVCons(struct cmd * data, struct decl_list_var * next){
-    struct decl_list_var * res = new_decl_list_var_ptr();
-    res -> data = data;
-    res -> next = next;
-    return res;
-}
-
-struct decl_list_array * TDACons(struct cmd * data, struct decl_list_array * next){
-    struct decl_list_array * res = new_decl_list_array_ptr();
+struct cmd_list * TCCons(struct cmd * data, struct cmd_list * next){
+    struct cmd_list * res = new_cmd_list_ptr();
     res -> data = data;
     res -> next = next;
     return res;
