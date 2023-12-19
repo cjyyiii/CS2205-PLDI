@@ -57,9 +57,9 @@ struct expr {
   enum ExprType t;
   union {
     struct {unsigned int value; } CONST;
+    struct {unsigned int value; } CHAR;
+    struct {char * value; unsigned int size;} STRING;
     struct {char * name; } VAR;
-    struct {char * value; } CHAR;
-    struct {char * value; } STRING;
     struct {char * name; struct expr * num; } ARRAY;
     struct {enum BinOpType op; struct expr * left; struct expr * right; } BINOP;
     struct {enum UnOpType op; struct expr * arg; } UNOP;

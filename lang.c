@@ -70,6 +70,24 @@ struct expr * TConst(unsigned int value) {
   return res;
 }
 
+struct expr * TChar(char * value) {
+    struct expr * res = new_expr_ptr();
+    res -> t = T_CHAR;
+    res -> d.CHAR.value = value[1];
+    return res;
+}
+
+struct expr * TString(char * value) {
+    struct expr * res = new_expr_ptr();
+    res -> t = T_STRING;
+    int * x = malloc(sizeof(int) * (strlen(value) - 2));
+    for (int i = 0;  i < strlen(value) - 2; ++ i) x [i] = value[i + 1];
+    free(value);
+    res -> d.STRING.value = value;
+    res -> d.STRING.size = strlen(value)-2;
+    return res;
+}
+
 struct expr * TVar(char * name) {
   struct expr * res = new_expr_ptr();
   res -> t = T_VAR;
@@ -86,20 +104,6 @@ struct expr * TArray(char * name, struct expr * num) {
   res -> d.ARRAY.num->t= num->t;
   return res;
 }
-
-struct expr * TChar(char * value) {
-    struct expr * res = new_expr_ptr();
-    res -> t = T_VAR;
-    res -> d.VAR.name = name;
-    return res;
-}//todo
-
-struct expr * TString(char * value) {
-    struct expr * res = new_expr_ptr();
-    res -> t = T_VAR;
-    res -> d.VAR.name = name;
-    return res;
-}//todo
 
 struct expr * TBinOp(enum BinOpType op, struct expr * left, struct expr * right) {
   struct expr * res = new_expr_ptr();
@@ -173,10 +177,10 @@ struct cmd * TDeclAndAsgn_String(char * name, struct expr * value) {
   struct cmd * res = new_cmd_ptr();
   res -> t = T_DECLANDASGN_ARRAY;
   res -> d.DECLANDASGN_ARRAY.name = name;
-  res -> d.DECLANDASGN_ARRAY.size = size;
+  res -> d.DECLANDASGN_ARRAY.size = value->d.STRING.size;
   res -> d.DECLANDASGN_ARRAY.value = value;
   return res;
-}//todo
+}
 
 struct cmd * TAsgn(struct expr * left, struct expr * right) {
   struct cmd * res = new_cmd_ptr();
@@ -285,6 +289,8 @@ void print_expr(struct expr * e) {
   case T_CONST:
     printf("CONST(%d)", e -> d.CONST.value);
     break;
+  case T_CHAR:
+    printf("CHAR()")
   case T_VAR:
     printf("VAR(%s)", e -> d.VAR.name);
     break;
