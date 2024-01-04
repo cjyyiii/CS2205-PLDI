@@ -319,10 +319,19 @@ void print_expr(struct expr * e) {
   case T_CONST:
     printf("CONST(%d)", e -> d.CONST.value);
     break;
-  case T_CHAR://todo
-    printf("CHAR(%d)", e -> d.CHAR.value);
-  case T_STRING://todo
-    printf("STRING(%ls)", e -> d.STRING.value);
+  case T_CHAR:
+    printf("CHAR(%c", e -> d.CHAR.ch);
+    printf(",%d)", e -> d.CHAR.value);
+    break;
+  case T_STRING:
+    printf("STRING(%s,", e -> d.STRING.str);
+    for(int i=0;i< strlen(e->d.STRING.str);++i){
+        if(i==strlen(e->d.STRING.str)-1){
+            printf("%d)", e -> d.STRING.value[i]);
+        }
+        printf("%d,", e -> d.STRING.value[i]);
+    }
+    break;
   case T_VAR:
     printf("VAR(%s)", e -> d.VAR.name);
     break;
@@ -412,6 +421,7 @@ void print_cmd(struct cmd * c) {
     break;
   case T_DECL_STH:
     print_decl_list(c->d.DECL_STH.decl_sth);
+    break;
   }
 }
 
