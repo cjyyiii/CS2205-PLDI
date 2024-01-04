@@ -127,5 +127,6 @@ void print_unop(enum UnOpType op);
 void print_expr(struct expr * e);
 void print_expr_list(struct expr_list * es);
 void print_cmd(struct cmd * c);
+void print_cmd_list(struct cmd_list * cs);
 
 #endif // LANG_H_INCLUDED
