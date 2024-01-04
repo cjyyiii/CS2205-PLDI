@@ -41,8 +41,8 @@ void * none;
 %type <e> NT_EXPR_2
 %type <e> NT_EXPR
 %type <es> NT_EXPR_LIST
-%type <cs> NT_DECL_VAR
-%type <cs> NT_DECL_ARRAY
+%type <c> NT_DECL_VAR
+%type <c> NT_DECL_ARRAY
 %type <cs> NT_DECL_LIST_VAR
 %type <cs> NT_DECL_LIST_ARRAY
 
@@ -239,7 +239,7 @@ NT_DECL_ARRAY:
   }
 | TM_IDENT TM_ASGNOP TM_STRING
   {
-    $$ = (TDeclAndAsgn_String($1,$3));
+    $$ = (TDeclAndAsgn_String($1,TString($3)));
   }
 ;
 
