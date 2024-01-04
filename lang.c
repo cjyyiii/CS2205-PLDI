@@ -31,6 +31,16 @@ struct cmd * new_cmd_ptr() {
   return res;
 }
 
+struct cmd_list * new_cmd_list_ptr() {
+  struct cmd_list * res =
+    (struct cmd_list *) malloc(sizeof(struct cmd_list));
+  if (res == NULL) {
+    printf("Failure in malloc.\n");
+    exit(0);
+  }
+  return res;
+}
+
 struct expr_list * TENil() {
   return NULL;
 }
@@ -39,16 +49,6 @@ struct expr_list * TECons(struct expr * data, struct expr_list * next) {
     struct expr_list * res = new_expr_list_ptr();
     res -> data = data;
     res -> next = next;
-    return res;
-}
-
-struct cmd_list * new_cmd_list_ptr(){
-    struct cmd_list * res =
-            (struct cmd_list *) malloc(sizeof(struct cmd_list));
-    if (res == NULL) {
-        printf("Failure in malloc.\n");
-        exit(0);
-    }
     return res;
 }
 
@@ -407,4 +407,13 @@ void print_cmd(struct cmd * c) {
     printf(")");
     break;
   }
+}
+
+void print_cmd_list(struct cmd_list * cs) {
+  if (cs == NULL) {
+    return;
+  }
+  printf(",");
+  print_cmd(cs -> data);
+  print_cmd_list(cs -> next);
 }
