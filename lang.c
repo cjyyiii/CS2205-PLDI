@@ -81,7 +81,7 @@ struct expr * TString(char * value) {
     struct expr * res = new_expr_ptr();
     res -> t = T_STRING;
     int * x = malloc(sizeof(int) * (strlen(value) - 2));
-    for (int i = 0;  i < strlen(value) - 2; ++ i) x [i] = value[i + 1];
+    for (int i = 0;  i < strlen(value) - 2; ++ i) x[i] = value[i + 1];
     free(value);
     res -> d.STRING.value = value;
     res -> d.STRING.size = strlen(value)-2;
@@ -289,8 +289,10 @@ void print_expr(struct expr * e) {
   case T_CONST:
     printf("CONST(%d)", e -> d.CONST.value);
     break;
-  case T_CHAR:
-    printf("CHAR()")
+  case T_CHAR://todo
+    printf("CHAR()");
+  case T_STRING://todo
+    printf("STRING()");
   case T_VAR:
     printf("VAR(%s)", e -> d.VAR.name);
     break;
@@ -354,6 +356,8 @@ void print_cmd(struct cmd * c) {
     print_expr_list(c -> d.DECLANDASGN_ARRAY.value);
     printf(")");
     break;  
+  case T_DECLANDASGN_STRING://todo
+
   case T_ASGN:
     printf("ASGN(");
     print_expr(c -> d.ASGN.left);
