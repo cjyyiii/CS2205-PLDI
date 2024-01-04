@@ -180,7 +180,7 @@ struct cmd * TDeclAndAsgn_Array(char * name, unsigned int size, struct expr_list
 
 struct cmd * TDeclAndAsgn_String(char * name, struct expr * value) {
   struct cmd * res = new_cmd_ptr();
-  res -> t = T_DECLANDASGN_ARRAY;
+  res -> t = T_DECLANDASGN_STRING;
   res -> d.DECLANDASGN_STRING.name = name;
   res -> d.DECLANDASGN_STRING.size = value->d.STRING.size;
   res -> d.DECLANDASGN_STRING.value = value;
@@ -295,9 +295,9 @@ void print_expr(struct expr * e) {
     printf("CONST(%d)", e -> d.CONST.value);
     break;
   case T_CHAR://todo
-    printf("CHAR()");
+    printf("CHAR(%d)", e -> d.CHAR.value);
   case T_STRING://todo
-    printf("STRING()");
+    printf("STRING(%ls)", e -> d.STRING.value);
   case T_VAR:
     printf("VAR(%s)", e -> d.VAR.name);
     break;
@@ -362,7 +362,10 @@ void print_cmd(struct cmd * c) {
     printf(")");
     break;  
   case T_DECLANDASGN_STRING://todo
-
+    printf("DECLANDASGN_STRING(%s,%d", c -> d.DECLANDASGN_STRING.name, c -> d.DECLANDASGN_STRING.size);
+    print_expr(c -> d.DECLANDASGN_STRING.value);
+    printf(")");
+    break;  
   case T_ASGN:
     printf("ASGN(");
     print_expr(c -> d.ASGN.left);

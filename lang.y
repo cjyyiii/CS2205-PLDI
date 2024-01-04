@@ -239,7 +239,7 @@ NT_DECL_ARRAY:
   }
 | TM_IDENT TM_ASGNOP TM_STRING
   {
-    $$ = (TDeclAndAsgn_String($1,$4));
+    $$ = (TDeclAndAsgn_String($1,$3));
   }
 ;
 
