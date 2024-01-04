@@ -421,7 +421,7 @@ void print_decl(struct decl * d) {
     printf("DECL(%s)", d -> d.DECL.name);
     break;
   case T_DECLANDASGN:
-    printf("DECLANDASGN(%s", d -> d.DECLANDASGN.name);
+    printf("DECLANDASGN(%s,", d -> d.DECLANDASGN.name);
     print_expr(d -> d.DECLANDASGN.value);
     printf(")");
     break;

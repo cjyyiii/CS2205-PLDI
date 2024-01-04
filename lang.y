@@ -79,6 +79,14 @@ NT_CMD:
   {
     $$ = (TDeclSth($2));
   }
+| TM_IDENT TM_ASGNOP NT_EXPR
+  {
+    $$ = (TAsgn(TVar($1),$3));
+  }
+| TM_IDENT TM_LEFT_BRACKET NT_EXPR TM_RIGHT_BRACKET TM_ASGNOP NT_EXPR
+  {
+    $$ = (TAsgn(TArray($1,$3),$6));
+  }
 | NT_CMD TM_SEMICOL NT_CMD
   {
     $$ = (TSeq($1,$3));
