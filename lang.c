@@ -41,6 +41,25 @@ struct cmd_list * new_cmd_list_ptr() {
   return res;
 }
 
+struct decl * new_decl_ptr() {
+    struct decl * res = (struct decl *) malloc(sizeof(struct decl));
+    if (res == NULL) {
+        printf("Failure in malloc.\n");
+        exit(0);
+    }
+    return res;
+}
+
+struct decl_list * new_decl_list_ptr() {
+    struct decl_list * res =
+            (struct decl_list *) malloc(sizeof(struct decl_list));
+    if (res == NULL) {
+        printf("Failure in malloc.\n");
+        exit(0);
+    }
+    return res;
+}
+
 struct expr_list * TENil() {
   return NULL;
 }
@@ -61,6 +80,12 @@ struct cmd_list * TCCons(struct cmd * data, struct cmd_list * next){
     res -> data = data;
     res -> next = next;
     return res;
+}
+
+struct cmd * TDeclSth(struct decl_list * decl_sth){
+    struct cmd * res =new_cmd_ptr();
+    res->t =T_DECL_STH;
+    res->d.DECL_STH.decl_sth = decl_sth;
 }
 
 struct expr * TConst(unsigned int value) {
@@ -146,31 +171,31 @@ struct expr * TReadChar() {
   return res;
 }
 
-struct cmd * TDecl(char * name) {
-  struct cmd * res = new_cmd_ptr();
+struct decl * TDecl(char * name) {
+  struct decl * res = new_decl_ptr();
   res -> t = T_DECL;
   res -> d.DECL.name = name;
   return res;
 }
 
-struct cmd * TDeclAndAsgn(char * name, struct expr * value) {
-  struct cmd * res = new_cmd_ptr();
+struct decl * TDeclAndAsgn(char * name, struct expr * value) {
+  struct decl * res = new_decl_ptr();
   res -> t = T_DECLANDASGN;
   res -> d.DECLANDASGN.name = name;
   res -> d.DECLANDASGN.value = value;
   return res;
 }
 
-struct cmd * TDecl_Array(char * name, unsigned int size) {
-  struct cmd * res = new_cmd_ptr();
+struct decl * TDecl_Array(char * name, unsigned int size) {
+  struct decl * res = new_decl_ptr();
   res -> t = T_DECL_ARRAY;
   res -> d.DECL_ARRAY.name = name;
   res -> d.DECL_ARRAY.size = size;
   return res;
 }
 
-struct cmd * TDeclAndAsgn_Array(char * name, unsigned int size, struct expr_list * value) {
-  struct cmd * res = new_cmd_ptr();
+struct decl * TDeclAndAsgn_Array(char * name, unsigned int size, struct expr_list * value) {
+  struct decl * res = new_decl_ptr();
   res -> t = T_DECLANDASGN_ARRAY;
   res -> d.DECLANDASGN_ARRAY.name = name;
   res -> d.DECLANDASGN_ARRAY.size = size;
@@ -178,8 +203,8 @@ struct cmd * TDeclAndAsgn_Array(char * name, unsigned int size, struct expr_list
   return res;
 }
 
-struct cmd * TDeclAndAsgn_String(char * name, struct expr * value) {
-  struct cmd * res = new_cmd_ptr();
+struct decl * TDeclAndAsgn_String(char * name, struct expr * value) {
+  struct decl * res = new_decl_ptr();
   res -> t = T_DECLANDASGN_STRING;
   res -> d.DECLANDASGN_STRING.name = name;
   res -> d.DECLANDASGN_STRING.size = value->d.STRING.size;
