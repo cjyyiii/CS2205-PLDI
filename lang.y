@@ -15,6 +15,8 @@ struct expr * e;
 struct expr_list * es;
 struct cmd * c;
 struct cmd_list * cs;
+struct decl * d;
+struct decl_list * ds;
 void * none;
 }
 
@@ -41,10 +43,10 @@ void * none;
 %type <e> NT_EXPR_2
 %type <e> NT_EXPR
 %type <es> NT_EXPR_LIST
-%type <c> NT_DECL_VAR
-%type <c> NT_DECL_ARRAY
-%type <cs> NT_DECL_LIST_VAR
-%type <cs> NT_DECL_LIST_ARRAY
+%type <d> NT_DECL_VAR
+%type <d> NT_DECL_ARRAY
+%type <ds> NT_DECL_LIST_VAR
+%type <ds> NT_DECL_LIST_ARRAY
 
 // Priority
 %nonassoc TM_ASGNOP
@@ -71,11 +73,11 @@ NT_WHOLE:
 NT_CMD:
   TM_VAR NT_DECL_LIST_VAR
   {
-    $$ = ($2);
+    $$ = (TDeclSth($2));
   }
 | TM_ARRAY NT_DECL_LIST_ARRAY
   {
-    $$ = ($2);
+    $$ = (TDeclSth($2));
   }
 | NT_CMD TM_SEMICOL NT_CMD
   {
@@ -246,22 +248,22 @@ NT_DECL_ARRAY:
 NT_DECL_LIST_VAR:
   NT_DECL_VAR
   {
-  $$ = (TCCons($1,TCNil()));
+  $$ = (TDCons($1,TDNil()));
   }
 | NT_DECL_VAR TM_COMMA NT_DECL_LIST_VAR
   {
-  $$ = (TCCons($1,$3));
+  $$ = (TDCons($1,$3));
   }
 ;
 
 NT_DECL_LIST_ARRAY:
   NT_DECL_ARRAY
   {
-  $$ = (TCCons($1,TCNil()));
+  $$ = (TDCons($1,TDNil()));
   }
 | NT_DECL_ARRAY TM_COMMA NT_DECL_LIST_ARRAY
   {
-  $$ = (TCCons($1,$3));
+  $$ = (TDCons($1,$3));
   }
 ;
 
