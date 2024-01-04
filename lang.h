@@ -57,8 +57,8 @@ struct expr {
   enum ExprType t;
   union {
     struct {unsigned int value; } CONST;
-    struct {unsigned int value; } CHAR;
-    struct {char * value; unsigned int size;} STRING;
+    struct {char ch; unsigned int value; } CHAR;
+    struct {char * str; unsigned int * value; unsigned int size;} STRING;
     struct {char * name; } VAR;
     struct {char * name; struct expr * num; } ARRAY;
     struct {enum BinOpType op; struct expr * left; struct expr * right; } BINOP;
@@ -81,7 +81,7 @@ struct cmd {
     struct {char * name; struct expr * value; } DECLANDASGN;
     struct {char * name; unsigned int size; } DECL_ARRAY;
     struct {char * name; unsigned int size; struct expr_list * value; } DECLANDASGN_ARRAY;
-    struct {char * name; struct expr * value; } DECLANDASGN_STRING;
+    struct {char * name; unsigned int size; struct expr * value; } DECLANDASGN_STRING;
     struct {struct expr * left; struct expr * right; } ASGN;
     struct {struct cmd * left; struct cmd * right; } SEQ;
     struct {struct expr * cond; struct cmd * left; struct cmd * right; } IF;

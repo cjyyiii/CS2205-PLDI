@@ -73,18 +73,23 @@ struct expr * TConst(unsigned int value) {
 struct expr * TChar(char * value) {
     struct expr * res = new_expr_ptr();
     res -> t = T_CHAR;
-    res -> d.CHAR.value = value[1];
+    res -> d.CHAR.ch = value[1];
+    res -> d.CHAR.value = (unsigned char)value[1];
+    free(value);
     return res;
 }
 
 struct expr * TString(char * value) {
     struct expr * res = new_expr_ptr();
     res -> t = T_STRING;
-    int * x = malloc(sizeof(int) * (strlen(value) - 2));
-    for (int i = 0;  i < strlen(value) - 2; ++ i) x[i] = value[i + 1];
-    free(value);
-    res -> d.STRING.value = value;
+    unsigned int * x = malloc(sizeof(unsigned int) * (strlen(value) - 2));
+    for (int i = 0;  i < strlen(value) - 2; ++ i) x [i] = (unsigned char)value[i + 1];
+    char * y = malloc(sizeof(char) * (strlen(value) - 2));
+    for (int i = 0;  i < strlen(value) - 2; ++ i) y [i] = value[i + 1];
+    res -> d.STRING.str = y;
+    res -> d.STRING.value = x;
     res -> d.STRING.size = strlen(value)-2;
+    free(value);
     return res;
 }
 
@@ -176,9 +181,9 @@ struct cmd * TDeclAndAsgn_Array(char * name, unsigned int size, struct expr_list
 struct cmd * TDeclAndAsgn_String(char * name, struct expr * value) {
   struct cmd * res = new_cmd_ptr();
   res -> t = T_DECLANDASGN_ARRAY;
-  res -> d.DECLANDASGN_ARRAY.name = name;
-  res -> d.DECLANDASGN_ARRAY.size = value->d.STRING.size;
-  res -> d.DECLANDASGN_ARRAY.value = value;
+  res -> d.DECLANDASGN_STRING.name = name;
+  res -> d.DECLANDASGN_STRING.size = value->d.STRING.size;
+  res -> d.DECLANDASGN_STRING.value = value;
   return res;
 }
 
