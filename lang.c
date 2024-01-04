@@ -31,16 +31,6 @@ struct cmd * new_cmd_ptr() {
   return res;
 }
 
-//struct cmd_list * new_cmd_list_ptr() {
-//  struct cmd_list * res =
-//    (struct cmd_list *) malloc(sizeof(struct cmd_list));
-//  if (res == NULL) {
-//    printf("Failure in malloc.\n");
-//    exit(0);
-//  }
-//  return res;
-//}
-
 struct decl * new_decl_ptr() {
     struct decl * res = (struct decl *) malloc(sizeof(struct decl));
     if (res == NULL) {
@@ -86,6 +76,7 @@ struct cmd * TDeclSth(struct decl_list * decl_sth){
     struct cmd * res =new_cmd_ptr();
     res->t =T_DECL_STH;
     res->d.DECL_STH.decl_sth = decl_sth;
+    return res;
 }
 
 struct expr * TConst(unsigned int value) {
@@ -99,7 +90,7 @@ struct expr * TChar(char * value) {
     struct expr * res = new_expr_ptr();
     res -> t = T_CHAR;
     res -> d.CHAR.ch = value[1];
-    res -> d.CHAR.value = (unsigned char)value[1];
+    res -> d.CHAR.value = (unsigned int)value[1];
     free(value);
     return res;
 }
@@ -108,10 +99,8 @@ struct expr * TString(char * value) {
     struct expr * res = new_expr_ptr();
     res -> t = T_STRING;
     unsigned int * x = malloc(sizeof(unsigned int) * (strlen(value) - 2));
-    for (int i = 0;  i < strlen(value) - 2; ++ i) x [i] = (unsigned char)value[i + 1];
-    char * y = malloc(sizeof(char) * (strlen(value) - 2));
-    for (int i = 0;  i < strlen(value) - 2; ++ i) y [i] = value[i + 1];
-    res -> d.STRING.str = y;
+    for (int i = 0;  i < strlen(value) - 2; ++ i) x[i] = (unsigned int)value[i + 1];
+    res -> d.STRING.str = value;
     res -> d.STRING.value = x;
     res -> d.STRING.size = strlen(value)-2;
     free(value);
@@ -443,7 +432,7 @@ void print_decl(struct decl * d) {
     print_expr_list(d -> d.DECLANDASGN_ARRAY.value);
     printf(")");
     break;
-  case T_DECLANDASGN_STRING://todo
+  case T_DECLANDASGN_STRING:
     printf("DECLANDASGN_STRING(%s,%d", d -> d.DECLANDASGN_STRING.name, d -> d.DECLANDASGN_STRING.size);
     print_expr(d -> d.DECLANDASGN_STRING.value);
     printf(")");
