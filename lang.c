@@ -454,10 +454,12 @@ void print_decl(struct decl * d) {
 }
 
 void print_decl_list(struct decl_list * ds) {
-  if (ds == NULL) {
-    return;
-  }
-  printf(",");
   print_decl(ds -> data);
-  print_decl_list(ds -> next);
+  if (ds->next == NULL) {
+      return;
+  }
+  else {
+      printf(",");
+      print_decl_list(ds -> next);
+  }
 }
