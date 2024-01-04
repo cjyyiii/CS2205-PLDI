@@ -82,6 +82,17 @@ struct cmd_list * TCCons(struct cmd * data, struct cmd_list * next){
     return res;
 }
 
+struct decl_list * TDNil(){
+    return NULL;
+}
+
+struct decl_list * TDCons(struct decl * data, struct decl_list * next){
+    struct decl_list * res = new_decl_list_ptr();
+    res -> data = data;
+    res -> next = next;
+    return res;
+}
+
 struct cmd * TDeclSth(struct decl_list * decl_sth){
     struct cmd * res =new_cmd_ptr();
     res->t =T_DECL_STH;
@@ -370,27 +381,6 @@ void print_expr_list(struct expr_list * es) {
 
 void print_cmd(struct cmd * c) {
   switch (c -> t) {
-  case T_DECL:
-    printf("DECL(%s)", c -> d.DECL.name);
-    break;
-  case T_DECLANDASGN:
-    printf("DECLANDASGN(%s", c -> d.DECLANDASGN.name);
-    print_expr(c -> d.DECLANDASGN.value);
-    printf(")");
-    break;
-  case T_DECL_ARRAY:
-    printf("DECL_ARRAY(%s,%d)", c -> d.DECL_ARRAY.name, c -> d.DECL_ARRAY.size);
-    break;
-  case T_DECLANDASGN_ARRAY:
-    printf("DECLANDASGN_ARRAY(%s,%d", c -> d.DECLANDASGN_ARRAY.name, c -> d.DECLANDASGN_ARRAY.size);
-    print_expr_list(c -> d.DECLANDASGN_ARRAY.value);
-    printf(")");
-    break;  
-  case T_DECLANDASGN_STRING://todo
-    printf("DECLANDASGN_STRING(%s,%d", c -> d.DECLANDASGN_STRING.name, c -> d.DECLANDASGN_STRING.size);
-    print_expr(c -> d.DECLANDASGN_STRING.value);
-    printf(")");
-    break;  
   case T_ASGN:
     printf("ASGN(");
     print_expr(c -> d.ASGN.left);
@@ -441,4 +431,41 @@ void print_cmd_list(struct cmd_list * cs) {
   printf(",");
   print_cmd(cs -> data);
   print_cmd_list(cs -> next);
+}
+
+void print_decl(struct decl *d) {
+  switch (d -> t){
+  case T_DECL:
+    printf("DECL(%s)", d -> d.DECL.name);
+    break;
+  case T_DECLANDASGN:
+    printf("DECLANDASGN(%s", d -> d.DECLANDASGN.name);
+    print_expr(d -> d.DECLANDASGN.value);
+    printf(")");
+    break;
+  case T_DECL_ARRAY:
+    printf("DECL_ARRAY(%s,%d)", d -> d.DECL_ARRAY.name, d -> d.DECL_ARRAY.size);
+    break;
+  case T_DECLANDASGN_ARRAY:
+    printf("DECLANDASGN_ARRAY(%s,%d", d -> d.DECLANDASGN_ARRAY.name, d -> d.DECLANDASGN_ARRAY.size);
+    print_expr_list(d -> d.DECLANDASGN_ARRAY.value);
+    printf(")");
+    break;  
+  case T_DECLANDASGN_STRING://todo
+    printf("DECLANDASGN_STRING(%s,%d", d -> d.DECLANDASGN_STRING.name, d -> d.DECLANDASGN_STRING.size);
+    print_expr(d -> d.DECLANDASGN_STRING.value);
+    printf(")");
+    break;  
+  default:
+    break;
+  }
+}
+
+void print_decl_list(struct decl_list * ds) {
+  if (ds == NULL) {
+    return;
+  }
+  printf(",");
+  print_decl(ds -> data);
+  print_decl_list(ds -> next);
 }

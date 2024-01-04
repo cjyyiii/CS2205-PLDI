@@ -120,16 +120,16 @@ Nonterminals, with rules where they appear
     NT_EXPR_LIST <es> (47)
         on left: 34 35
         on right: 35 39
-    NT_DECL_VAR <c> (48)
+    NT_DECL_VAR <d> (48)
         on left: 36 37
         on right: 41 42
-    NT_DECL_ARRAY <c> (49)
+    NT_DECL_ARRAY <d> (49)
         on left: 38 39 40
         on right: 43 44
-    NT_DECL_LIST_VAR <cs> (50)
+    NT_DECL_LIST_VAR <ds> (50)
         on left: 41 42
         on right: 2 42
-    NT_DECL_LIST_ARRAY <cs> (51)
+    NT_DECL_LIST_ARRAY <ds> (51)
         on left: 43 44
         on right: 3 44
 

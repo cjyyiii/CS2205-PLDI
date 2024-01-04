@@ -147,5 +147,7 @@ void print_expr(struct expr * e);
 void print_expr_list(struct expr_list * es);
 void print_cmd(struct cmd * c);
 void print_cmd_list(struct cmd_list * cs);
+void print_decl(struct decl * d);
+void print_decl_list(struct decl_list * ds);
 
 #endif // LANG_H_INCLUDED
