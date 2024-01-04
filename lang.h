@@ -107,15 +107,9 @@ struct cmd {
   } d;
 };
 
-struct cmd_list {
-    struct cmd * data;
-    struct cmd_list * next;
-};
 
 struct expr_list * TENil();
 struct expr_list * TECons(struct expr * data, struct expr_list * next);
-struct cmd_list * TCNil();
-struct cmd_list * TCCons(struct cmd * data, struct cmd_list * next);
 struct decl_list * TDNil();
 struct decl_list * TDCons(struct decl * data, struct decl_list * next);
 struct expr * TConst(unsigned int value);
@@ -146,7 +140,6 @@ void print_unop(enum UnOpType op);
 void print_expr(struct expr * e);
 void print_expr_list(struct expr_list * es);
 void print_cmd(struct cmd * c);
-void print_cmd_list(struct cmd_list * cs);
 void print_decl(struct decl * d);
 void print_decl_list(struct decl_list * ds);
 

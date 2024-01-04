@@ -31,15 +31,15 @@ struct cmd * new_cmd_ptr() {
   return res;
 }
 
-struct cmd_list * new_cmd_list_ptr() {
-  struct cmd_list * res =
-    (struct cmd_list *) malloc(sizeof(struct cmd_list));
-  if (res == NULL) {
-    printf("Failure in malloc.\n");
-    exit(0);
-  }
-  return res;
-}
+//struct cmd_list * new_cmd_list_ptr() {
+//  struct cmd_list * res =
+//    (struct cmd_list *) malloc(sizeof(struct cmd_list));
+//  if (res == NULL) {
+//    printf("Failure in malloc.\n");
+//    exit(0);
+//  }
+//  return res;
+//}
 
 struct decl * new_decl_ptr() {
     struct decl * res = (struct decl *) malloc(sizeof(struct decl));
@@ -66,17 +66,6 @@ struct expr_list * TENil() {
 
 struct expr_list * TECons(struct expr * data, struct expr_list * next) {
     struct expr_list * res = new_expr_list_ptr();
-    res -> data = data;
-    res -> next = next;
-    return res;
-}
-
-struct cmd_list * TCNil(){
-    return NULL;
-}
-
-struct cmd_list * TCCons(struct cmd * data, struct cmd_list * next){
-    struct cmd_list * res = new_cmd_list_ptr();
     res -> data = data;
     res -> next = next;
     return res;
@@ -421,19 +410,12 @@ void print_cmd(struct cmd * c) {
     print_expr(c -> d.WC.arg);
     printf(")");
     break;
+  case T_DECL_STH:
+    print_decl_list(c->d.DECL_STH.decl_sth);
   }
 }
 
-void print_cmd_list(struct cmd_list * cs) {
-  if (cs == NULL) {
-    return;
-  }
-  printf(",");
-  print_cmd(cs -> data);
-  print_cmd_list(cs -> next);
-}
-
-void print_decl(struct decl *d) {
+void print_decl(struct decl * d) {
   switch (d -> t){
   case T_DECL:
     printf("DECL(%s)", d -> d.DECL.name);
@@ -450,12 +432,12 @@ void print_decl(struct decl *d) {
     printf("DECLANDASGN_ARRAY(%s,%d", d -> d.DECLANDASGN_ARRAY.name, d -> d.DECLANDASGN_ARRAY.size);
     print_expr_list(d -> d.DECLANDASGN_ARRAY.value);
     printf(")");
-    break;  
+    break;
   case T_DECLANDASGN_STRING://todo
     printf("DECLANDASGN_STRING(%s,%d", d -> d.DECLANDASGN_STRING.name, d -> d.DECLANDASGN_STRING.size);
     print_expr(d -> d.DECLANDASGN_STRING.value);
     printf(")");
-    break;  
+    break;
   default:
     break;
   }
