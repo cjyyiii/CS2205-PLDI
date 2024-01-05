@@ -54,7 +54,7 @@ struct expr_list *TENil() {
     return NULL;
 }
 
-struct expr_list *TECons(struct expr *data, struct expr_list *next) {
+struct expr_list *TECons(struct expr *data, struct expr_list *next) {//合并expr_list
     struct expr_list *res = new_expr_list_ptr();
     res->data = data;
     res->next = next;
@@ -65,14 +65,14 @@ struct decl_list *TDNil() {
     return NULL;
 }
 
-struct decl_list *TDCons(struct decl *data, struct decl_list *next) {
+struct decl_list *TDCons(struct decl *data, struct decl_list *next) {//合并decl_list
     struct decl_list *res = new_decl_list_ptr();
     res->data = data;
     res->next = next;
     return res;
 }
 
-struct cmd *TDeclSth(struct decl_list *decl_sth) {
+struct cmd *TDeclSth(struct decl_list *decl_sth) {//每行decl_list实质上为一个命令语句
     struct cmd *res = new_cmd_ptr();
     res->t = T_DECL_STH;
     res->d.DECL_STH.decl_sth = decl_sth;
@@ -99,8 +99,26 @@ struct expr *TString(char *value) {
     struct expr *res = new_expr_ptr();
     res->t = T_STRING;
     unsigned int *x = malloc(sizeof(unsigned int) * (strlen(value) - 2));
-    for (int i = 0; i < strlen(value) - 2; ++i) x[i] = (unsigned int) value[i + 1];
-    res->d.STRING.str = value+1;
+    int flag = -1;
+    int num = 0;
+    for (int i = 0; i < strlen(value) - 2; ++i) {
+      if(flag == 1) {
+        if(value[i + 1] == 110) {
+          x[i - num - 1] = 10;
+          num++;
+        } else {
+          x[i - num - 1] = 92;
+        }
+        flag = 0;
+      } else {
+        if(value[i + 1] == 92) flag = 1;
+        else {
+          x[i - num] = (unsigned int) value[i + 1];
+        }
+      }
+    }
+
+    res->d.STRING.str = value + 1;
     res->d.STRING.value = x;
     res->d.STRING.size = strlen(value) - 2;
     free(value);
@@ -192,7 +210,7 @@ struct decl *TDeclAndAsgn_Array(char *name, unsigned int size, struct expr_list 
     return res;
 }
 
-struct decl *TDeclAndAsgn_String(char *name, struct expr *value) {
+struct decl *TDeclAndAsgn_String(char *name, struct expr *value) {//声明字符串（必须赋初值且以双引号标记时识别为字符串类型）
     struct decl *res = new_decl_ptr();
     res->t = T_DECLANDASGN_STRING;
     res->d.DECLANDASGN_STRING.name = name;

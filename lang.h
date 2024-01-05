@@ -39,7 +39,7 @@ enum ExprType {
   T_RC
 };
 
-enum DeclType {
+enum DeclType {//变量定义和赋初值
     T_DECL = 0,
     T_DECLANDASGN,
     T_DECL_ARRAY,
@@ -61,10 +61,10 @@ struct expr {
   enum ExprType t;
   union {
     struct {unsigned int value; } CONST;
-    struct {char ch; unsigned int value; } CHAR;
-    struct {char * str; unsigned int * value; unsigned int size;} STRING;
+    struct {char ch; unsigned int value; } CHAR;//单个字符
+    struct {char * str; unsigned int * value; unsigned int size;} STRING;//字符串类型
     struct {char * name; } VAR;
-    struct {char * name; struct expr * num; } ARRAY;
+    struct {char * name; struct expr * num; } ARRAY;//数组类型
     struct {enum BinOpType op; struct expr * left; struct expr * right; } BINOP;
     struct {enum UnOpType op; struct expr * arg; } UNOP;
     struct {struct expr * arg; } MALLOC;
@@ -82,7 +82,7 @@ struct decl {
     enum DeclType t;
     union {
         struct {char * name; } DECL;
-        struct {char * name; struct expr * value; } DECLANDASGN;
+        struct {char * name; struct expr * value; } DECLANDASGN;//变量声明的同时初始化
         struct {char * name; unsigned int size; } DECL_ARRAY;
         struct {char * name; unsigned int size; struct expr_list * value; } DECLANDASGN_ARRAY;
         struct {char * name; unsigned int size; struct expr * value; } DECLANDASGN_STRING;
