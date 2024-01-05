@@ -317,6 +317,7 @@ void print_expr(struct expr * e) {
     for(int i = 0; i < strlen(e -> d.STRING.str); ++i) {
         if(i == strlen(e -> d.STRING.str) - 1) {
             printf("%d)", e -> d.STRING.value[i]);
+            break;
         }
         printf("%d,", e -> d.STRING.value[i]);
     }
@@ -428,7 +429,7 @@ void print_decl(struct decl * d) {
     printf("DECL_ARRAY(%s,%d)", d -> d.DECL_ARRAY.name, d -> d.DECL_ARRAY.size);
     break;
   case T_DECLANDASGN_ARRAY:
-    printf("DECLANDASGN_ARRAY(%s,%d,", d -> d.DECLANDASGN_ARRAY.name, d -> d.DECLANDASGN_ARRAY.size);
+    printf("DECLANDASGN_ARRAY(%s,%d", d -> d.DECLANDASGN_ARRAY.name, d -> d.DECLANDASGN_ARRAY.size);
     print_expr_list(d -> d.DECLANDASGN_ARRAY.value);
     printf(")");
     break;
