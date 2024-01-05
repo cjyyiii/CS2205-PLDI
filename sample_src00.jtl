@@ -1,1 +1,4 @@
-array n="apple"
+array a[2] = {1, 3}, n = "0123456";
+a[1] = 5;
+var d = 's', s = 5;
+s = s * 2 + 1

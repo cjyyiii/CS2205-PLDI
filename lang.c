@@ -73,9 +73,9 @@ struct decl_list * TDCons(struct decl * data, struct decl_list * next){
 }
 
 struct cmd * TDeclSth(struct decl_list * decl_sth){
-    struct cmd * res =new_cmd_ptr();
-    res->t =T_DECL_STH;
-    res->d.DECL_STH.decl_sth = decl_sth;
+    struct cmd * res = new_cmd_ptr();
+    res -> t = T_DECL_STH;
+    res -> d.DECL_STH.decl_sth = decl_sth;
     return res;
 }
 
@@ -99,10 +99,10 @@ struct expr * TString(char * value) {
     struct expr * res = new_expr_ptr();
     res -> t = T_STRING;
     unsigned int * x = malloc(sizeof(unsigned int) * (strlen(value) - 2));
-    for (int i = 0;  i < strlen(value) - 2; ++ i) x[i] = (unsigned int)value[i + 1];
+    for (int i = 0;  i < strlen(value) - 2; ++i) x[i] = (unsigned int)value[i + 1];
     res -> d.STRING.str = value;
     res -> d.STRING.value = x;
-    res -> d.STRING.size = strlen(value)-2;
+    res -> d.STRING.size = strlen(value) - 2;
     free(value);
     return res;
 }
@@ -119,8 +119,8 @@ struct expr * TArray(char * name, struct expr * num) {
   res -> t = T_ARRAY;
   res -> d.ARRAY.name = name;
   res -> d.ARRAY.num = new_expr_ptr();
-  res -> d.ARRAY.num->d= num->d;
-  res -> d.ARRAY.num->t= num->t;
+  res -> d.ARRAY.num -> d = num -> d;
+  res -> d.ARRAY.num -> t = num -> t;
   return res;
 }
 
@@ -196,7 +196,7 @@ struct decl * TDeclAndAsgn_String(char * name, struct expr * value) {
   struct decl * res = new_decl_ptr();
   res -> t = T_DECLANDASGN_STRING;
   res -> d.DECLANDASGN_STRING.name = name;
-  res -> d.DECLANDASGN_STRING.size = value->d.STRING.size;
+  res -> d.DECLANDASGN_STRING.size = value -> d.STRING.size;
   res -> d.DECLANDASGN_STRING.value = value;
   return res;
 }
@@ -314,8 +314,8 @@ void print_expr(struct expr * e) {
     break;
   case T_STRING:
     printf("STRING(%s,", e -> d.STRING.str);
-    for(int i=0;i< strlen(e->d.STRING.str);++i){
-        if(i==strlen(e->d.STRING.str)-1){
+    for(int i = 0; i < strlen(e -> d.STRING.str); ++i) {
+        if(i == strlen(e -> d.STRING.str) - 1) {
             printf("%d)", e -> d.STRING.value[i]);
         }
         printf("%d,", e -> d.STRING.value[i]);
@@ -409,7 +409,7 @@ void print_cmd(struct cmd * c) {
     printf(")");
     break;
   case T_DECL_STH:
-    print_decl_list(c->d.DECL_STH.decl_sth);
+    print_decl_list(c -> d.DECL_STH.decl_sth);
     break;
   }
 }
@@ -428,12 +428,12 @@ void print_decl(struct decl * d) {
     printf("DECL_ARRAY(%s,%d)", d -> d.DECL_ARRAY.name, d -> d.DECL_ARRAY.size);
     break;
   case T_DECLANDASGN_ARRAY:
-    printf("DECLANDASGN_ARRAY(%s,%d", d -> d.DECLANDASGN_ARRAY.name, d -> d.DECLANDASGN_ARRAY.size);
+    printf("DECLANDASGN_ARRAY(%s,%d,", d -> d.DECLANDASGN_ARRAY.name, d -> d.DECLANDASGN_ARRAY.size);
     print_expr_list(d -> d.DECLANDASGN_ARRAY.value);
     printf(")");
     break;
   case T_DECLANDASGN_STRING:
-    printf("DECLANDASGN_STRING(%s,%d", d -> d.DECLANDASGN_STRING.name, d -> d.DECLANDASGN_STRING.size);
+    printf("DECLANDASGN_STRING(%s,%d,", d -> d.DECLANDASGN_STRING.name, d -> d.DECLANDASGN_STRING.size);
     print_expr(d -> d.DECLANDASGN_STRING.value);
     printf(")");
     break;
