@@ -65,7 +65,7 @@
     return TM_IDENT;
     }
 
-['].['] {
+['].*['] {
     yylval.i = new_str(yytext, yyleng);
     return TM_CHAR;
     }
