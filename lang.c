@@ -120,7 +120,7 @@ struct expr *TString(char *value) {
 
     res->d.STRING.str = value + 1;
     res->d.STRING.value = x;
-    res->d.STRING.size = strlen(value) - 2;
+    res->d.STRING.size = strlen(value) - 2-num;
     free(value);
     return res;
 }
