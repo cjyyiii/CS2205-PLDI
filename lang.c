@@ -134,10 +134,12 @@ struct expr *TChar(char *value) {
 struct expr *TString(char *value) {
     struct expr *res = new_expr_ptr();
     res->t = T_STRING;
+    unsigned int *x1 = malloc(sizeof(unsigned int) * (strlen(value) - 2));
     unsigned int *x = malloc(sizeof(unsigned int) * (strlen(value) - 2));
     int flag = -1;
     int num = 0;
     for (int i = 0; i < strlen(value) - 2; ++i) {
+        x1[i] = (unsigned int) value[i + 1];
         if (flag == 1) {
             switch (value[i + 1]) {
                 case 97://a
@@ -188,6 +190,7 @@ struct expr *TString(char *value) {
     }
     res->d.STRING.str = value + 1;
     res->d.STRING.value = x;
+    res->d.STRING.value1 = x1;
     res->d.STRING.size = strlen(value) - 2 - num;
     free(value);
     return res;
@@ -399,7 +402,7 @@ void print_expr(struct expr *e) {
             printf(",%d)", e->d.CHAR.value);
             break;
         case T_STRING:
-            printf("STRING(%ls,", e->d.STRING.value);
+            printf("STRING(%ls,", e->d.STRING.value1);
             for (int i = 0; i < e->d.STRING.size; ++i) {
                 if (i == e->d.STRING.size - 1) {
                     printf("%d)", e->d.STRING.value[i]);

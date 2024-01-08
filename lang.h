@@ -62,7 +62,7 @@ struct expr {
   union {
     struct {unsigned int value; } CONST;
     struct {char ch; unsigned int value; } CHAR;//单个字符
-    struct {char * str; unsigned int * value; unsigned int size;} STRING;//字符串类型
+    struct {char * str; unsigned int * value; unsigned int size; unsigned int * value1; } STRING;//字符串类型
     struct {char * name; } VAR;
     struct {char * name; struct expr * num; } ARRAY;//数组类型
     struct {enum BinOpType op; struct expr * left; struct expr * right; } BINOP;
