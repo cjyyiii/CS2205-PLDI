@@ -1,2 +1,1 @@
-array w = "apple\r_pie";
-var n = 0, s = 'n'
+var n

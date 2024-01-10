@@ -61,8 +61,9 @@ E&&E | E||E | !E
 
 ES :: = E,E,……,E
 
-D :: = V | V = E | V[N] | V[N] = {ES} | V = S
-DS :: = var D,D,……,D | array D,D,……,D
+D1 :: = V | V = E 
+D2 :: = V[N] | V[N] = {ES} | V = S
+DS :: = var D1,D1,……,D1 | array D2,D2,……,D2
 
 C :: = DS |
 V = E | V[E] = E
