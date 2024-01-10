@@ -59,14 +59,12 @@ E :: = N | V | S | CH | V[E] | -E | E+E | E-E | E*E | E/E | E%E |
 E<E | E<=E | E==E | E!=E | E>=E | E>E |
 E&&E | E||E | !E
 
-L :: = E,E,……,E
+ES :: = E,E,……,E
 
-D1 :: = V | V = E
-D2 :: = V[N] | V[N] = {L} | V = S
-Q1 :: = var D1,D1,……,D1
-Q2 :: = array D2,D2,……,D2
+D :: = V | V = E | V[N] | V[N] = {ES} | V = S
+DS :: = var D,D,……,D | array D,D,……,D
 
-C :: = Q1 | Q2
+C :: = DS |
 V = E | V[E] = E
 C; C |
 if (E) then { C } else { C } |
