@@ -1,1 +1,2 @@
-array w = "apple\r_pie"
+array w = "apple\r_pie";
+var n = 0, s = 'n'
