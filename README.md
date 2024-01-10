@@ -1,7 +1,19 @@
 # CS2205-PLDI
 大作业选题：带数组与字符串类型的程序语言的词法分析与语法分析
 
-while语言
+选题要求： 这个任务中，你需要在 While 语言中加入数组与字符串。
+要求 1：在 While 语言中加入数组相关的变量声明与表达式，并完成词法分析、语法分析与语法树输出。
+要求 2：支持变量声明的同时初始化，包括对于数组的初始化。
+要求 3：支持字符串常量，以及一句语句同时声明多个变量。
+
+# 编译相关
+要编辑此项目，使用```make```编译后，用```./main sample_src00.jtl```运行示例程序
+
+# 语法设计
+
+while语言语法为:
+
+```
 E :: = N | V | -E | E+E | E-E | E*E | E/E | E%E |
 E<E | E<=E | E==E | E!=E | E>=E | E>E |
 E&&E | E||E | !E
@@ -11,8 +23,10 @@ V = E |
 C; C |
 if (E) then { C } else { C } |
 while (E) do { C }
+```
 
 要求1：在 While 语言中加入数组相关的变量声明与表达式
+```
 E :: = N | V | V[E] | -E | E+E | E-E | E*E | E/E | E%E |
 E<E | E<=E | E==E | E!=E | E>=E | E>E |
 E&&E | E||E | !E
@@ -22,8 +36,10 @@ V = E | V[E] = E
 C; C |
 if (E) then { C } else { C } |
 while (E) do { C } |
+```
 
 要求2：支持变量声明的同时初始化，包括对于数组的初始化
+```
 E :: = N | V | V[E] | -E | E+E | E-E | E*E | E/E | E%E |
 E<E | E<=E | E==E | E!=E | E>=E | E>E |
 E&&E | E||E | !E
@@ -35,8 +51,10 @@ V = E | V[E] = E
 C; C |
 if (E) then { C } else { C } |
 while (E) do { C } |
+```
 
 要求3：支持字符串常量，以及一句语句同时声明多个变量
+```
 E :: = N | V | S | CH | V[E] | -E | E+E | E-E | E*E | E/E | E%E |
 E<E | E<=E | E==E | E!=E | E>=E | E>E |
 E&&E | E||E | !E
@@ -53,3 +71,5 @@ V = E | V[E] = E
 C; C |
 if (E) then { C } else { C } |
 while (E) do { C } |
+```
+
