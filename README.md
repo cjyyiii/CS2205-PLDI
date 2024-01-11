@@ -6,8 +6,10 @@
 - 要求 2：支持变量声明的同时初始化，包括对于数组的初始化。
 - 要求 3：支持字符串常量，以及一句语句同时声明多个变量。
 
+github网址：https://github.com/cjyyiii/CS2205-PLDI
+
 ## 编译相关
-要编辑此项目，使用```make```编译后，用```./main sample_src00.jtl```运行示例程序
+使用```make```编译后，用```./main sample_src00.jtl```运行示例程序
 
 ## 语法设计
 
