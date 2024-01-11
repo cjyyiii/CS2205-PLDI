@@ -9,7 +9,7 @@
 github网址：https://github.com/cjyyiii/CS2205-PLDI
 
 ## 编译相关
-使用```make```编译后，用```./main sample_src00.jtl```运行示例程序
+在ubuntu中使用```make```编译后，用```./main sample_src00.jtl```运行示例程序
 
 ## 语法设计
 
