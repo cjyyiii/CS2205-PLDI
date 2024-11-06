@@ -24,7 +24,7 @@ def set_seed(seed):
 set_seed(521000)
 
 def benchmark(props):
-
+    # add this line to test git func
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     env = FaultEnv(props)
     Fault = FaultModel(props, env, device)
