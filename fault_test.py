@@ -46,6 +46,9 @@ for t in range(time_steps):
 real_flow_throughput = 0  # 总的流量通过量
 theory_demand_flow = 0  # 实际的需求流量
 
+# 模拟每个时间步内的流量需求张量，并根据泊松分布引入链路故障
+lambda_poisson = 1  # 泊松分布的参数（平均每时间步发生的链路故障数量）
+
 # 模拟每个时间步内的流量需求张量，并随机引入链路故障
 for t in range(time_steps):
     # 获取当前时间步的流量需求矩阵
@@ -54,17 +57,20 @@ for t in range(time_steps):
     # 初始化链路流量矩阵
     link_flow = np.zeros((num_nodes, num_nodes))
     link_flow_fault = np.zeros((num_nodes, num_nodes))
-    # 随机引入链路故障
+
+    # 根据泊松分布引入链路故障
+    num_failures = np.random.poisson(lambda_poisson)
     failed_links = []
-    if random.random() < 0.3:  # 30% 的概率在每个时间步引入一个链路故障
+    for _ in range(num_failures):
         failed_src = random.randint(0, num_nodes - 1)
         failed_dst = random.randint(0, num_nodes - 1)
-        while failed_src == failed_dst or link_capacity[failed_src][failed_dst] == 0:
+        while failed_src == failed_dst or (failed_src, failed_dst) in failed_links or link_capacity[failed_src][failed_dst] == 0:
             failed_src = random.randint(0, num_nodes - 1)
             failed_dst = random.randint(0, num_nodes - 1)
         failed_links.append((failed_src, failed_dst))
-        print(f"Time Step {t + 1}: Link between {failed_src} and {failed_dst} has failed.")
     
+    if failed_links:
+        print(f"Time Step {t + 1}: Failed Links: {failed_links}")
     # 遍历每一对节点，计算链路流量, 考虑故障！！！
     split_index = 0
     for (src, dst), paths in routes.items():
