@@ -4,7 +4,7 @@ import random
 # 读取流量分配比例
 with open('Result\\Facebook_pod_a\\Fault\\split.txt', 'r') as f:
     split_ratios = [float(line.strip()) for line in f.readlines()]
-
+# test multi terminal co-work
 # 路由表（路径选择）
 routes = {
     (0, 1): [(0, 1), (0, 2, 1), (0, 3, 1)],
