@@ -57,7 +57,7 @@ theory_demand_flow = 0  # 实际的需求流量
 real_throughput_total=0
 theory_demand_total=0
 # 模拟每个时间步内的流量需求张量，并根据泊松分布引入链路故障
-lambda_poisson = 0.12  # 泊松分布的参数（平均每时间步发生的链路故障数量）
+lambda_poisson = 0.2  # 泊松分布的参数（平均每时间步发生的链路故障数量）
 flow_throughput_rate_total=0
 # 模拟每个时间步内的流量需求张量，并随机引入链路故障
 for t in range(time_steps):
@@ -91,12 +91,10 @@ for t in range(time_steps):
             # 对于路径中的每一条链路，增加相应的流量
             for i in range(len(path) - 1):
                 link_flow[path[i]][path[i + 1]] += demand * split_ratio
-                if(path[i-1], path[i]) in failed_links:
+                if ((path[i-1], path[i]) in failed_links) | ((path[i-1], path[i]) == failed_path):
                     failed_path=(path[i], path[i+1])
                 if (path[i], path[i + 1]) not in failed_links:  # 跳过故障链路
-                    if(path[i], path[i+1])==failed_path:
-                        failed_path=[]
-                    else:
+                    if(path[i], path[i+1]) != failed_path:
                         link_flow_fault[path[i]][path[i + 1]] += demand * split_ratio
                 if(path[i], path[i+1]) in failed_links:
                     bad_path_flag=1
