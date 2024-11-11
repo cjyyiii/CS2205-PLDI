@@ -25,7 +25,7 @@ set_seed(521000)
 
 def benchmark(props):
     
-    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    device = torch.device('cpu')
     env = FaultEnv(props)
     Fault = FaultModel(props, env, device)
 
@@ -39,7 +39,7 @@ def benchmark(props):
         test_dataset = FaultDataset(props, env, 'test')
         test_dl = DataLoader(test_dataset, batch_size=1, shuffle=False)
         model = torch.load(f'{MODEL_DIR}/{props.topo_name}_{props.opt_name}.pt') if props.opt_name \
-            else torch.load(f'{MODEL_DIR}/{props.topo_name}.pt')
+            else torch.load(f'{MODEL_DIR}/{props.topo_name}.pt', map_location=torch.device('cpu'))
         Fault.test(test_dl, model, device)
 
     return

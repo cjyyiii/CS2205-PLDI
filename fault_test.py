@@ -59,6 +59,11 @@ theory_demand_total=0
 # 模拟每个时间步内的流量需求张量，并根据泊松分布引入链路故障
 lambda_poisson = 0.2  # 泊松分布的参数（平均每时间步发生的链路故障数量）
 flow_throughput_rate_total=0
+
+failed_links = []
+
+link_recovery = {}
+link_fault_duration = 10
 # 模拟每个时间步内的流量需求张量，并随机引入链路故障
 for t in range(time_steps):
     # 获取当前时间步的流量需求矩阵
@@ -70,7 +75,7 @@ for t in range(time_steps):
 
     # 根据泊松分布引入链路故障
     num_failures = np.random.poisson(lambda_poisson)
-    failed_links = []
+    # failed_links = []
     for _ in range(num_failures):
         failed_src = random.randint(0, num_nodes - 1)
         failed_dst = random.randint(0, num_nodes - 1)
@@ -78,7 +83,13 @@ for t in range(time_steps):
             failed_src = random.randint(0, num_nodes - 1)
             failed_dst = random.randint(0, num_nodes - 1)
         failed_links.append((failed_src, failed_dst))
-    
+        link_recovery[(failed_src,failed_dst)] = t + link_fault_duration
+
+    for i in range(0,num_nodes):
+        for j in range(0,num_nodes):
+            if ((i,j) in link_recovery):
+                if(t == link_recovery[(i,j)]):
+                    failed_links.remove((i, j))
     # 遍历每一对节点，计算链路流量, 考虑故障！！！
     split_index = 0
     failed_path=[]
@@ -106,7 +117,7 @@ for t in range(time_steps):
     link_utilization = np.divide(link_flow, link_capacity, where=link_capacity != 0)
     time_link_utilizations.append(link_utilization)
     real_flow_throughput = np.sum(link_flow_fault)  # 累加当前时间步的总流量通过量
-    theory_demand_flow = np.sum(link_flow)
+    theory_demand_flow = np.sum(link_flow)      
     flow_throughput_rate = (real_flow_throughput / theory_demand_flow) * 100
     real_throughput_total += real_flow_throughput
     theory_demand_total += theory_demand_flow
@@ -122,4 +133,3 @@ print(flow_throughput_rate_total)
 # for t, utilization in enumerate(time_link_utilizations):
 #     print(f"Time Step {t + 1} Link Utilization Matrix:")
 #     print(utilization)
-
