@@ -15,6 +15,7 @@ def set_seed(seed):
     np.random.seed(seed)
     random.seed(seed)
     torch.manual_seed(seed)
+    
     if torch.cuda.is_available():
         torch.cuda.manual_seed(seed)
         torch.cuda.manual_seed_all(seed)
@@ -25,7 +26,10 @@ set_seed(521000)
 
 def benchmark(props):
     
-    device = torch.device('cpu')
+    if torch.cuda.is_available():
+        device = torch.device("cuda:0")
+    else:
+        device = torch.device("cpu")
     env = FaultEnv(props)
     Fault = FaultModel(props, env, device)
 

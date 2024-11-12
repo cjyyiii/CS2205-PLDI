@@ -7,11 +7,12 @@ def add_default_args(parser):
     
     parser.add_argument('--mode', type=str, default = 'test')
     parser.add_argument('--batch_size', type=int, default = 1)
-    parser.add_argument('--epochs', type=int, default = 1)
+    parser.add_argument('--epochs', type=int, default = 10)
     parser.add_argument('--num_layer', type=int, default = 3)
 
     parser.add_argument('--hist_len', type=int, default = 12)
     parser.add_argument('--alpha', type=float, default = 0.03)
+    parser.add_argument('--beta', type=float, default = 0.5)
 
     parser.add_argument('--opt_name', type=str, default = '')
 

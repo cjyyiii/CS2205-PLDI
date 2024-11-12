@@ -12,12 +12,12 @@ class FaultNetWork(nn.Module):
         super(FaultNetWork, self).__init__()
         self.flatten = nn.Flatten()
         self.layers = []
-        self.layers.append(nn.Linear(input_dim, 256))
+        self.layers.append(nn.Linear(input_dim, 512))
         self.layers.append(nn.ReLU())
         for _ in range(layer_num):
-            self.layers.append(nn.Linear(256, 256))
+            self.layers.append(nn.Linear(512, 512))
             self.layers.append(nn.ReLU())
-        self.layers.append(nn.Linear(256, output_dim))
+        self.layers.append(nn.Linear(512, output_dim))
         self.layers.append(nn.Sigmoid())
         self.net = nn.Sequential(*self.layers)
     

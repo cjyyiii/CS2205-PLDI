@@ -83,65 +83,60 @@ class FaultModel():
         return ret, ret_val
     
     def loss_R(self, y_pred_batch, y_true_batch):
-        """Compute the loss of the model with risk penalty.
+        """Compute the loss of the model.
 
         Args:
-            y_pred_batch: the split ratios for the candidate paths
-            y_true_batch: the true traffic demand and the optimal mlu
+            y_pred: the split ratios for the candidate paths
+            y_true: the true traffic demand and the optimal mlu
         """
         num_nodes = self.env.num_nodes
         losses = []
         loss_vals = []
         batch_size = y_pred_batch.shape[0]
-        
         for i in range(batch_size):
             y_pred = y_pred_batch[[i]]
             y_true = y_true_batch[[i]]
-            opt = y_true[0][num_nodes * (num_nodes - 1)].item()
-            y_true = torch.narrow(y_true, 1, 0, num_nodes * (num_nodes - 1))  # shape: (1, num_commodities)
+            opt = y_true[0][num_nodes * (num_nodes -1)].item()
+            y_true = torch.narrow(y_true, 1, 0, num_nodes * (num_nodes - 1)) #shape: (1, num_commodities)
 
             y_pred = y_pred + 1e-16
-            paths_weight = torch.transpose(y_pred, 0, 1)  # shape: (num_paths, 1)
-            commodity_total_weight = self.commodities_to_paths.matmul(paths_weight)  # shape: (num_commodities, 1)
-            paths_over_total = self.commodities_to_paths.transpose(0, 1).matmul(1.0 / commodity_total_weight)  # shape: (num_paths, 1)
-            split_ratios = paths_weight.mul(paths_over_total)  # shape: (num_paths, 1)
-            tmp_demand_on_paths = self.commodities_to_paths.transpose(0, 1).matmul(y_true.transpose(0, 1))  # shape: (num_paths, 1)
-            demand_on_paths = tmp_demand_on_paths.mul(split_ratios)  # shape: (num_paths, 1)
-            flow_on_edges = self.paths_to_edges.transpose(0, 1).matmul(demand_on_paths)  # shape: (num_edges, 1)
-            congestion = flow_on_edges.divide(self.edges_capacity)  # shape: (num_edges, 1)
-            max_cong = torch.max(congestion.flatten(), dim=0).values
+            paths_weight = torch.transpose(y_pred, 0, 1) #shape: (num_paths, 1)
+            commodity_total_weight = self.commodities_to_paths.matmul(paths_weight) #shape: (num_commodities, 1)
+            paths_over_total = self.commodities_to_paths.transpose(0, 1).matmul(1.0 / commodity_total_weight) #shape: (num_paths, 1)
+            split_ratios = paths_weight.mul(paths_over_total) #shape: (num_paths, 1)
+            tmp_demand_on_paths = self.commodities_to_paths.transpose(0, 1).matmul(y_true.transpose(0, 1)) #shape: (num_paths, 1)
+            demand_on_paths = tmp_demand_on_paths.mul(split_ratios) #shape: (num_paths, 1)
+            flow_on_edges = self.paths_to_edges.transpose(0, 1).matmul(demand_on_paths) #shape: (num_edges, 1)
+            congestion = flow_on_edges.divide(self.edges_capacity) #shape: (num_edges, 1)
+            max_cong = torch.max(congestion.flatten(), dim = 0).values
 
-            # Calculate loss without sensitivity term
-            loss = 1.0 - max_cong if max_cong.item() == 0.0 else max_cong / max_cong.item()
+            if self.env.constant_pathlen:
+                max_sensitivity = torch.max(split_ratios.view(num_nodes * (num_nodes - 1), -1), dim = 1).values #shape: (num_commodities,)
+            else:
+                split_ratios = torch.split(split_ratios, self.env.commodities_to_path_nums)
+                max_sensitivity = torch.tensor([torch.max(split_ratio) for split_ratio in split_ratios]).to(self.device) #shape: (num_commodities,)
+            weight_max_sensitivity = max_sensitivity.mul(self.tm_hist_std) #(num_commodities,)
+            sum_wm_sens = torch.sum(weight_max_sensitivity) / len(weight_max_sensitivity)
+
+            # 引入链路故障的惩罚项
+            # 计算链路故障概率（泊松分布）
+            lambda_poisson = 0.04  # 泊松分布的参数
+            link_failure_probabilities = torch.poisson(torch.full((self.paths_to_edges.shape[1],), lambda_poisson)).to(self.device) #shape: (num_edges,)
+            link_failure_penalty = torch.sum(link_failure_probabilities.mul(congestion.flatten())) #shape: ()
+            # print("penalty:" , link_failure_penalty)
+            # loss function, the first term is the congestion, the second term is the sensitivity.
+            # The operation of dividing by item() is used to balance different objectives, 
+            # ensuring they are on the same scale. Then, alpha is used to adjust their importance.
+            loss = 1.0 - max_cong if max_cong.item() == 0.0 else \
+                    max_cong / max_cong.item() + self.props.alpha * sum_wm_sens / sum_wm_sens.item() + self.props.beta * link_failure_penalty
             loss_val = 1.0 if opt == 0.0 else max_cong.item() / opt
-            
-            # Risk penalty term (L_risk)
-            # Calculate edge capacity penalty
-            risk_penalty_edges = 0
-            for e in range(len(self.edges_capacity)):
-                load_on_edge = flow_on_edges[e].item()
-                p_e = 0.01 #self.edge_risk_weights[e]  # Assuming risk weights for edges are stored here
-                risk_penalty_edges += load_on_edge*(1 - math.exp(-1*p_e))
-            
-            # Calculate node risk penalty
-            # risk_penalty_nodes = 0
-            # for i in range(num_nodes):
-            #     load_on_node = torch.sum(self.commodities_to_paths[i] * demand_on_paths).item()
-            #     p_i = 0.01 #self.node_risk_weights[i]  # Assuming risk weights for nodes are stored here
-            #     risk_penalty_nodes += p_i * (load_on_node) ** 2
-
-            # Total risk penalty
-            risk_penalty = risk_penalty_edges # + risk_penalty_nodes
-
-            # Adding risk penalty to the loss
-            total_loss = loss + risk_penalty
-            
-            losses.append(total_loss)
+            losses.append(loss)
             loss_vals.append(loss_val)
         
         ret = sum(losses) / len(losses)
         ret_val = sum(loss_vals) / len(loss_vals)
         return ret, ret_val
+
 
 
     def train(self, train_dl, model, optimizer, device):
@@ -163,7 +158,7 @@ class FaultModel():
                     tepoch.set_description(f"Epoch {epoch + 1}/{self.props.epochs}")
                     inputs, targets = inputs.to(device), targets.to(device)
                     preds = model(inputs)
-                    loss, loss_val = self.loss(preds, targets)
+                    loss, loss_val = self.loss_R(preds, targets)
                     optimizer.zero_grad()
                     loss.backward()
                     optimizer.step()
@@ -188,7 +183,7 @@ class FaultModel():
                 for inputs, targets in tests:
                     inputs, targets = inputs.to(device), targets.to(device)
                     preds = model(inputs)
-                    _, loss_val = self.loss(preds, targets)
+                    _, loss_val = self.loss_R(preds, targets)
                     paths_weight = torch.transpose(preds, 0, 1) #shape: (num_paths, 1)
                     commodity_total_weight = self.commodities_to_paths.matmul(paths_weight) #shape: (num_commodities, 1)
                     paths_over_total = self.commodities_to_paths.transpose(0, 1).matmul(1.0 / commodity_total_weight) #shape: (num_paths, 1)
