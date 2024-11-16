@@ -3,6 +3,9 @@ from config import RESULT_DIR
 import random
 import torch
 import glob 
+from utils import print_to_txt
+import os
+import pandas as pd
 
 # 读取流量分配比例
 with open('Result\\Facebook_pod_a\\Fault\\split.txt', 'r') as f:
@@ -13,8 +16,8 @@ traffic_opt = []
 
 num_nodes = 4
 
-# hist_files = 'D:\\sjtu\\fault\\Data\\Facebook_pod_a\\test\\*.hist'
-hist_files = 'D:\\SJTU_NETWORK\\sjtu\\fault\\Data\\Facebook_pod_a\\test\\*.hist'
+hist_files = 'D:\\sjtu\\fault\\Data\\Facebook_pod_a\\test\\*.hist'
+# hist_files = 'D:\\SJTU_NETWORK\\sjtu\\fault\\Data\\Facebook_pod_a\\test\\*.hist'
 
 for file in glob.glob(hist_files):
     with open(file, 'r') as f:
@@ -49,16 +52,16 @@ link_capacity = np.array([
     [100000, 100000, 0, 100000],
     [100000, 100000, 100000, 0]
 ])
-for trial in range(0,10):
+for lambda_poisson in range(1,11):
     # 初始化用于存储每一时刻链路利用率的列表
-    time_link_utilizations = []
+    time_max_link_utilizations = []
 
     real_flow_throughput = 0  # 总的流量通过量
     theory_demand_flow = 0  # 实际的需求流量
     real_throughput_total=0
     theory_demand_total=0
     # 模拟每个时间步内的流量需求张量，并根据泊松分布引入链路故障
-    lambda_poisson = 0.124 #0.124 # 泊松分布的参数（平均每时间步发生的链路故障数量）
+    lambda_poisson = lambda_poisson/10 #0.124 # 泊松分布的参数（平均每时间步发生的链路故障数量）
     flow_throughput_rate_total=0
 
     failed_links = []
@@ -102,24 +105,44 @@ for trial in range(0,10):
                 split_index += 1
                 # 对于路径中的每一条链路，增加相应的流量
                 for i in range(len(path) - 1):
-                    link_flow[path[i]][path[i + 1]] += demand * split_ratio
-                    if ((path[i-1], path[i]) in failed_links) | ((path[i-1], path[i]) == failed_path):
+                    #i->i+1是当前链路，i-1->i是该路径的前一条链路
+                    if(link_flow[path[i]][path[i + 1]] + demand * split_ratio < 100000):
+                        link_flow[path[i]][path[i + 1]] += demand * split_ratio
+                    #下面这个if判断整条路径中是否有任何一条断开的链路，如果有，则整条路径无效
+                    if ((path[i-1], path[i]) in failed_links) | ((path[i-1], path[i]) == failed_path): 
                         failed_path=(path[i], path[i+1])
                     if (path[i], path[i + 1]) not in failed_links:  # 跳过故障链路
                         if(path[i], path[i+1]) != failed_path:
                             link_flow_fault[path[i]][path[i + 1]] += demand * split_ratio
                     if(path[i], path[i+1]) in failed_links:
+                        for potential_path in paths:
+                            break_out_flag = False
+                            for search in range(len(potential_path) - 1):
+                                if ((potential_path[search], potential_path[search + 1]) not in failed_links) & ((potential_path[search], potential_path[search + 1]) != failed_path):  # 重分配流量
+                                    if(link_flow[path[i]][path[i + 1]] + link_flow[potential_path[search]][potential_path[search + 1]] < 100000) & path[0]==potential_path[0] & path[-1]==potential_path[-1]:
+                                        link_flow_fault[potential_path[search], potential_path[search + 1]] += demand*split_ratio
+                                        break
+                            if break_out_flag:
+                                break_out_flag=0
+                                break
                         bad_path_flag=1
                     if(bad_path_flag==1):
-                        print(f"Time Step {t + 1}: Failed Links: {failed_links}")
-                        print(f"Time Step {t + 1}: Failed Path: {path}")
-                        link_utilization = np.divide(link_flow, link_capacity, where=link_capacity != 0)
-                        max_link_utilization = np.max(link_utilization)  # 获取当前最大链路利用率
-                        print(f"Max Link Utilization after Failure: {max_link_utilization:.2f}")
+                        # print(f"Time Step {t + 1}: Failed Links: {failed_links}")
+                        # print(f"Time Step {t + 1}: Failed Path: {path}")
+                        # link_utilization = np.divide(link_flow, link_capacity, where=link_capacity != 0)
+                        # max_link_utilization = np.max(link_utilization)  # 获取当前最大链路利用率
+                        # print(f"Max Link Utilization after Failure: {max_link_utilization:.2f}")
                         bad_path_flag = 0
         # 计算当前时刻的链路利用率矩阵
-        link_utilization = np.divide(link_flow, link_capacity, where=link_capacity != 0)
-        time_link_utilizations.append(link_utilization)
+        link_utilization = np.divide(link_flow_fault, link_capacity, where=link_capacity != 0)
+        max_link_utilization = np.max(link_utilization)  # 获取当前最大链路利用率
+        # print(f"Max Link Utilization after Failure: {max_link_utilization:.2f}")
+        if(max_link_utilization<1):
+            time_max_link_utilizations.append(max_link_utilization)
+        # 将 MLU 数据保存到 Excel 文件中
+        # mlu_df = pd.DataFrame(time_max_link_utilizations, columns=["最大链路利用率"])
+        # mlu_df.to_excel(os.path.join(RESULT_DIR, 'Facebook_pod_a', 'Fault', 'MLU_FIGRET'+str(lambda_poisson)+'.xlsx'), index=False, encoding='utf-8')
+        # mlu_df.to_excel(os.path.join(RESULT_DIR, 'Facebook_pod_a', 'Fault', 'MLU_FAULT'+str(lambda_poisson)+'.xlsx'), index=False, encoding='utf-8')
         real_flow_throughput = np.sum(link_flow_fault)  # 累加当前时间步的总流量通过量
         theory_demand_flow = np.sum(link_flow)      
         flow_throughput_rate = (real_flow_throughput / theory_demand_flow) * 100

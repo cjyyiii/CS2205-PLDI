@@ -1,147 +1,129 @@
 import numpy as np
+import random
 import torch
-import torch.nn as nn
-import torch.optim as optim
-import matplotlib.pyplot as plt
-import seaborn as sns
-import networkx as nx
+import glob
+import os
 
-# 1. Data Initialization
-# Node set V and Edge set E
-num_nodes = 10  # Number of nodes
-nodes = list(range(num_nodes))  # Node IDs from 0 to 9
+# 读取流量分配比例
+with open('Result\\Facebook_pod_a\\Fault\\split.txt', 'r') as f:
+    split_ratios = [float(line.strip()) for line in f.readlines()]
 
-# Generate link set and link capacity matrix
-link_capacity = np.full((num_nodes, num_nodes), 100)  # All link capacities are 100G
-np.fill_diagonal(link_capacity, 0)  # Self-loop capacity set to 0
+traffic_matrix = []
+traffic_opt = []
 
-# Generate traffic demand matrix D according to a fixed pattern, representing traffic demand between nodes
-traffic_demand = np.zeros((num_nodes, num_nodes))
-for i in nodes:
-    for j in nodes:
-        if i != j:
-            # Fixed pattern: traffic demand is the absolute difference of node IDs plus a constant
-            traffic_demand[i, j] = abs(i - j) + 10 + np.random.rand(1)*30
+num_nodes = 4
 
-# Visualize the initial traffic distribution
-# plt.figure(figsize=(7, 6))
-# sns.heatmap(traffic_demand, annot=True, fmt=".1f", cmap="Blues")
-# plt.title("Initial Traffic Distribution")
-# plt.xlabel("Destination Node")
-# plt.ylabel("Source Node")
-# plt.tight_layout()
-# plt.show()
+hist_files = 'D:\\sjtu\\fault\\Data\\Facebook_pod_a\\test\\*.hist'
 
-# 2. Traffic Path Information Generation
-# Use networkx to generate multiple link paths
-G = nx.complete_graph(num_nodes)
-traffic_paths = np.zeros((num_nodes, num_nodes, num_nodes, num_nodes))
+for file in glob.glob(hist_files):
+    with open(file, 'r') as f:
+        for line in f:
+            matrix = torch.tensor(list(map(float, line.strip().split()))).reshape(num_nodes, num_nodes)
+            traffic_matrix.append(matrix)
 
-for i in nodes:
-    for j in nodes:
-        if i != j:
-            # Use networkx's shortest path algorithm to get the path from node i to node j
-            shortest_path = nx.shortest_path(G, source=i, target=j)
-            # Convert the path to link representation and update the traffic_paths matrix
-            for k in range(len(shortest_path) - 1):
-                u = shortest_path[k]
-                v = shortest_path[k + 1]
-                traffic_paths[i, j, u, v] = 1  # Path passes through link (u, v)
+traffic_tensor = torch.stack(traffic_matrix)
+time_steps = traffic_tensor.shape[0]
+print(time_steps)
 
-# Visualize some traffic path information (e.g., paths from node 0 to other nodes)
-# fig, axes = plt.subplots(2, 5, figsize=(20, 8))
-# for j in range(1, num_nodes):
-#     sns.heatmap(traffic_paths[0, j], annot=True, fmt=".0f", cmap="Greens", ax=axes[(j-1) // 5, (j-1) % 5])
-#     axes[(j-1) // 5, (j-1) % 5].set_title(f"Path from Node 0 to Node {j}")
-#     axes[(j-1) // 5, (j-1) % 5].set_xlabel("Node")
-#     axes[(j-1) // 5, (j-1) % 5].set_ylabel("Node")
+# 路由表（路径选择）
+routes = {
+    (0, 1): [(0, 1), (0, 2, 1), (0, 3, 1)],
+    (0, 2): [(0, 2), (0, 1, 2), (0, 3, 2)],
+    (0, 3): [(0, 3), (0, 1, 3), (0, 2, 3)],
+    (1, 0): [(1, 0), (1, 2, 0), (1, 3, 0)],
+    (1, 2): [(1, 2), (1, 0, 2), (1, 3, 2)],
+    (1, 3): [(1, 3), (1, 0, 3), (1, 2, 3)],
+    (2, 0): [(2, 0), (2, 1, 0), (2, 3, 0)],
+    (2, 1): [(2, 1), (2, 0, 1), (2, 3, 1)],
+    (2, 3): [(2, 3), (2, 0, 3), (2, 1, 3)],
+    (3, 0): [(3, 0), (3, 1, 0), (3, 2, 0)],
+    (3, 1): [(3, 1), (3, 0, 1), (3, 2, 1)],
+    (3, 2): [(3, 2), (3, 0, 2), (3, 1, 2)],
+}
 
-# plt.tight_layout()
-# plt.show()
-
-# 3. Feature Vector Construction
-# Combine adjacency matrix, traffic demand matrix, link capacity matrix, and traffic path matrix to obtain the feature vector
-adjacency_matrix = nx.to_numpy_array(G)
-features = np.concatenate([
-    adjacency_matrix.flatten(),
-    traffic_demand.flatten(),
-    link_capacity.flatten(),
-    traffic_paths.flatten()
+# 假设链路容量矩阵（单位：单位流量）
+link_capacity = np.array([
+    [0, 100000, 100000, 100000],
+    [100000, 0, 100000, 100000],
+    [100000, 100000, 0, 100000],
+    [100000, 100000, 100000, 0]
 ])
-features = torch.tensor(features, dtype=torch.float32).unsqueeze(0)  # Convert to PyTorch tensor and add batch dimension
 
-# 4. Deep Neural Network Design
-# Input features: adjacency matrix, traffic demand matrix, link capacity matrix, traffic path matrix
-# Output: traffic allocation proportion for each link
-input_dim = features.shape[1]  # Input dimension is the length of the feature vector
-output_dim = num_nodes * num_nodes  # Output dimension is the number of links
+# 流量转移函数，处理链路故障并检查带宽限制
+def transfer_flow(link_flow, demand, path, split_ratio, failed_links):
+    for i in range(len(path) - 1):
+        # 检查链路是否故障，跳过故障链路
+        if (path[i], path[i + 1]) in failed_links:
+            continue  # 这个链路已经故障，跳过
+        
+        # 将流量分配到链路
+        link_flow[path[i]][path[i + 1]] += demand * split_ratio
+        
+        # 检查是否超过链路容量，若超过则丢弃超出部分
+        if link_flow[path[i]][path[i + 1]] > link_capacity[path[i]][path[i + 1]]:
+            link_flow[path[i]][path[i + 1]] = link_capacity[path[i]][path[i + 1]]  # 丢弃超出的流量
 
-class TrafficModel(nn.Module):
-    def __init__(self, input_dim, output_dim):
-        super(TrafficModel, self).__init__()
-        self.fc1 = nn.Linear(input_dim, 128)
-        self.fc2 = nn.Linear(128, 64)
-        self.fc3 = nn.Linear(64, output_dim)
-        self.softmax = nn.Softmax(dim=1)  # Use Softmax to ensure the traffic allocation proportion for each source-destination pair sums to 1
+# 主模拟过程
+for trial in range(0, 1):
+    # 初始化用于存储每一时刻链路利用率的列表
+    time_link_utilizations = []
 
-    def forward(self, x):
-        x = torch.relu(self.fc1(x))
-        x = torch.relu(self.fc2(x))
-        x = self.fc3(x)
-        x = self.softmax(x)
-        return x
+    real_flow_throughput = 0  # 总的流量通过量
+    theory_demand_flow = 0  # 实际的需求流量
+    real_throughput_total = 0
+    theory_demand_total = 0
+    # 模拟每个时间步内的流量需求张量，并根据泊松分布引入链路故障
+    lambda_poisson = 0.124  # 泊松分布的参数（平均每时间步发生的链路故障数量）
+    flow_throughput_rate_total = 0
 
-# Initialize model
-model = TrafficModel(input_dim, output_dim)
+    failed_links = []
+    link_recovery = {}
+    link_fault_duration = 5
+    
+    # 模拟每个时间步内的流量需求张量，并随机引入链路故障
+    for t in range(time_steps):
+        # 获取当前时间步的流量需求矩阵
+        traffic_matrix = traffic_tensor[t]
+        
+        # 初始化链路流量矩阵
+        link_flow = np.zeros((num_nodes, num_nodes))
+        link_flow_fault = np.zeros((num_nodes, num_nodes))
 
-# Print model structure
-print(model)
+        # 根据泊松分布引入链路故障
+        num_failures = np.random.poisson(lambda_poisson)
+        for _ in range(num_failures):
+            failed_src = random.randint(0, num_nodes - 1)
+            failed_dst = random.randint(0, num_nodes - 1)
+            while failed_src == failed_dst or (failed_src, failed_dst) in failed_links or link_capacity[failed_src][failed_dst] == 0:
+                failed_src = random.randint(0, num_nodes - 1)
+                failed_dst = random.randint(0, num_nodes - 1)
+            failed_links.append((failed_src, failed_dst))
+            link_recovery[(failed_src, failed_dst)] = t + link_fault_duration
 
-# 5. Loss Function Definition - Maximum Link Utilization (MLU)
-def mlu_loss(y_pred, link_capacity):
-    link_load = y_pred.view(num_nodes, num_nodes) * torch.tensor(link_capacity, dtype=torch.float32)
-    # Calculate maximum link utilization
-    capacities = torch.tensor(link_capacity, dtype=torch.float32)
-    mlu = torch.max(link_load / (capacities + 1e-6))  # Avoid division by 0
-    return mlu
+        # 恢复链路故障
+        for i in range(0, num_nodes):
+            for j in range(0, num_nodes):
+                if (i, j) in link_recovery and t == link_recovery[(i, j)]:
+                    failed_links.remove((i, j))
 
-# Optimizer settings
-optimizer = optim.Adam(model.parameters(), lr=0.001)
+        # 遍历每一对节点，计算链路流量, 考虑故障
+        split_index = 0
+        for (src, dst), paths in routes.items():
+            demand = traffic_matrix[src][dst]
+            for path in paths:
+                split_ratio = split_ratios[split_index]
+                split_index += 1
+                # 使用流量转移函数处理链路故障
+                transfer_flow(link_flow, demand, path, split_ratio, failed_links)
 
-# Example forward propagation and loss calculation
-output = model(features)
-# Ensure that the traffic allocation proportion for each source-destination pair sums to 1 (strong constraint) and no self-loop traffic
-output = output.view(num_nodes, num_nodes).clone()  # Use clone() to prevent in-place operation
-output = output / output.sum(dim=1, keepdim=True)  # Normalize each row (i.e., traffic allocation for each source node)
-output.fill_diagonal_(0)  # Set diagonal to 0 to ensure no self-loop traffic
-# Incorporate link capacity into the allocation
-output = output * torch.tensor(link_capacity, dtype=torch.float32) / torch.max(output * torch.tensor(link_capacity, dtype=torch.float32), torch.tensor(1e-6))
-loss = mlu_loss(output, link_capacity)
-print("Model Output:", output)
-print("MLU Loss:", loss.item())
+        # 计算当前时刻的链路利用率矩阵
+        link_utilization = np.divide(link_flow, link_capacity, where=link_capacity != 0)
+        time_link_utilizations.append(link_utilization)
+        real_flow_throughput = np.sum(link_flow_fault)  # 累加当前时间步的总流量通过量
+        theory_demand_flow = np.sum(link_flow)
+        flow_throughput_rate = (real_flow_throughput / theory_demand_flow) * 100
+        real_throughput_total += real_flow_throughput
+        theory_demand_total += theory_demand_flow
 
-# 6. Train the model
-num_epochs = 100
-for epoch in range(num_epochs):
-    model.train()
-    optimizer.zero_grad()
-    output = model(features)
-    # Ensure that the traffic allocation proportion for each source-destination pair sums to 1 (strong constraint) and no self-loop traffic
-    output = output.view(num_nodes, num_nodes).clone()  # Use clone() to prevent in-place operation
-    output = output / output.sum(dim=1, keepdim=True)  # Normalize each row
-    output.fill_diagonal_(0)  # Set diagonal to 0 to ensure no self-loop traffic
-    # Incorporate link capacity into the allocation
-    output = output * torch.tensor(link_capacity, dtype=torch.float32) / torch.max(output * torch.tensor(link_capacity, dtype=torch.float32), torch.tensor(1e-6))
-    loss = mlu_loss(output, link_capacity)
-    loss.backward()
-    optimizer.step()
-    print(f'Epoch [{epoch+1}/{num_epochs}], Loss: {loss.item():.4f}')
-
-# 7. Visualize the traffic allocation pattern after the decision
-plt.figure(figsize=(7, 6))
-sns.heatmap(output.detach().numpy(), annot=True, fmt=".2f", cmap="Reds")
-plt.title("Traffic Allocation Pattern After Decision")
-plt.xlabel("Destination Node")
-plt.ylabel("Source Node")
-plt.tight_layout()
-plt.show()
+    flow_throughput_rate_total = real_throughput_total / theory_demand_total
+    print(f"Total Flow Throughput Rate (%): {flow_throughput_rate_total}")

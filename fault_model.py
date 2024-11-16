@@ -123,7 +123,7 @@ class FaultModel():
 
             # Here monte-carlo to estimate the distribution of failure
 
-            lambda_poisson = 0.04  # 泊松分布的参数
+            lambda_poisson = 0.1  # 泊松分布的参数
             link_failure_probabilities = torch.poisson(torch.full((self.paths_to_edges.shape[1],), lambda_poisson)).to(self.device) #shape: (num_edges,)
             link_failure_penalty = torch.sum(link_failure_probabilities.mul(congestion.flatten())) #shape: ()
             
