@@ -44,10 +44,10 @@ routes = {
 # 假设链路容量矩阵（单位：单位流量）
 # 可以根据具体情况进行修改
 link_capacity = np.array([
-    [0, 10000, 10000, 10000],
-    [10000, 0, 10000, 10000],
-    [10000, 10000, 0, 10000],
-    [10000, 10000, 10000, 0]
+    [0, 100000, 100000, 100000],
+    [100000, 0, 100000, 100000],
+    [100000, 100000, 0, 100000],
+    [100000, 100000, 100000, 0]
 ])
 for trial in range(0,10):
     # 初始化用于存储每一时刻链路利用率的列表
@@ -57,8 +57,8 @@ for trial in range(0,10):
     theory_demand_flow = 0  # 实际的需求流量
     real_throughput_total=0
     theory_demand_total=0
-    # 模拟每个时间步内的流量需求张量，并根据泊松分布引入链路故+-------------障
-    lambda_poisson = 0.5 #0.124 # 泊松分布的参数（平均每时间步发生的链路故障数量）
+    # 模拟每个时间步内的流量需求张量，并根据泊松分布引入链路故障
+    lambda_poisson = 0.124 #0.124 # 泊松分布的参数（平均每时间步发生的链路故障数量）
     flow_throughput_rate_total=0
 
     failed_links = []
@@ -111,8 +111,11 @@ for trial in range(0,10):
                     if(path[i], path[i+1]) in failed_links:
                         bad_path_flag=1
                     if(bad_path_flag==1):
-                        # print(f"Time Step {t + 1}: Failed Links: {failed_links}")
-                        # print(f"Time Step {t + 1}: Failed Path: {path}")
+                        print(f"Time Step {t + 1}: Failed Links: {failed_links}")
+                        print(f"Time Step {t + 1}: Failed Path: {path}")
+                        link_utilization = np.divide(link_flow, link_capacity, where=link_capacity != 0)
+                        max_link_utilization = np.max(link_utilization)  # 获取当前最大链路利用率
+                        print(f"Max Link Utilization after Failure: {max_link_utilization:.2f}")
                         bad_path_flag = 0
         # 计算当前时刻的链路利用率矩阵
         link_utilization = np.divide(link_flow, link_capacity, where=link_capacity != 0)
@@ -128,4 +131,3 @@ for trial in range(0,10):
     flow_throughput_rate_total=real_throughput_total/theory_demand_total
     # print("Total Flow Throughput Rate (%):")
     print(flow_throughput_rate_total)
-
