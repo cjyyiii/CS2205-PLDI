@@ -7,6 +7,8 @@ from utils import print_to_txt
 import os
 import pandas as pd
 
+# LOSSS函数设计待改进，ffc方法的测试，montecarlo模拟概率。
+
 # 读取流量分配比例
 with open('Result\\Facebook_pod_a\\Fault\\split.txt', 'r') as f:
     split_ratios = [float(line.strip()) for line in f.readlines()]
