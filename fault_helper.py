@@ -5,7 +5,7 @@ def add_default_args(parser):
     parser.add_argument('--topo_name', type=str, default = 'Facebook_pod_a')
     parser.add_argument('--paths_file', type=str, default = 'tunnels.txt')
     
-    parser.add_argument('--mode', type=str, default = 'test')
+    parser.add_argument('--mode', type=str, default = 'train')
     parser.add_argument('--batch_size', type=int, default = 1)
     parser.add_argument('--epochs', type=int, default = 10)
     parser.add_argument('--num_layer', type=int, default = 3)

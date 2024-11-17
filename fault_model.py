@@ -120,12 +120,13 @@ class FaultModel():
 
             # 引入链路故障的惩罚项
             # 计算链路故障概率（泊松分布）
-
+            
             # Here monte-carlo to estimate the distribution of failure
             
             # loss = MLU+CONG+RISK
             lambda_poisson = 0.1  # 泊松分布的参数
             link_failure_probabilities = torch.poisson(torch.full((self.paths_to_edges.shape[1],), lambda_poisson)).to(self.device) #shape: (num_edges,)
+            print("link_failure_probabilities: ", congestion.flatten())
             link_failure_penalty = torch.sum(link_failure_probabilities.mul(congestion.flatten())) #shape: ()
             
             # print("penalty:" , link_failure_penalty)
